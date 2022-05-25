@@ -44,8 +44,8 @@ function voltage_reversals(varargin)
     dat_u = [t_an,u_an];
     dat_i = [t_an,i_an];
     disp(em.v)
-    save(strcat(em.v,'_u','_make.dat'),'dat_u','-ascii');
-    save(strcat(em.v,'_i','_make.dat'),'dat_i','-ascii');
+    save(strcat(em.v,'_u','),'dat_u','-ascii');
+    save(strcat(em.v,'_i.dat'),'dat_i','-ascii');
 
     figure
     yyaxis left

@@ -3,8 +3,6 @@ classdef elmech < handle
     properties
         ts              % target system version, e.g. 'T1'
         source          % source type 'voltage' or 'current'
-        variant         % target system variant, e.g. 'OJ+iL'
-        v               % version string, e.g. 'T1_current_OJ+iL'
         n               % system order
         m               % number of outputs
         r               % number of inputs
@@ -36,10 +34,6 @@ classdef elmech < handle
             elseif nargin < 3
                 variant = 0;
             end
-            self.ts = ts;
-            self.source = source;
-            self.variant = variant;
-            self.v = strcat(ts,'_',source,'_',string(variant));
             self.params__con(ts,variant);
             self.params_con(ts,variant);
             self.ss__con(ts,source,variant);
