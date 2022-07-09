@@ -17,7 +17,7 @@ function pi_controller_example_3m(varargin)
     grid on
     
     %% Define the closed-loop transfer function
-    K = 0.507;               % from root locus
+    K = 0.595;               % from root locus
     GCLP = K*G/(1+K*G*H);   % closed-loop tf
     
     %% Simulate the step response
