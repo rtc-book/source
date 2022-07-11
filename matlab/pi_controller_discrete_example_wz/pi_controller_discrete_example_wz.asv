@@ -1,0 +1,95 @@
+function pi_controller_discrete_example_wz(varargin)
+    %% Load packages
+    addpath('..')               % to load sibling packages
+    import plotting.colors.*    % RTCBook colors
+    import utils.*              % utilities like root_locus_data function
+    colors = plotting.colors(); % ... load them, set as default
+    
+    %% Parse arguments
+
+    %% Define system
+    G = tf([64],[1,12,32]);
+    H = tf([2,20],[1,20]);
+    
+    %% Compute and save root locus data (and plot)
+    figure;
+    [r,k] = root_locus_data(G*H,'root-locus-P.txt');
+    grid on
+    
+    %% Define the closed-loop transfer function
+    K = 3.66;               % from root locus
+    GCLP = K*G/(1+K*G*H);   % closed-loop tf
+    
+    %% Simulate the step response
+    t = 0:;  % time array
+    yP = step(GCLP,t);        % step response simulation
+    
+    %% Plot step response
+    figure
+    plot(t,yP);
+    xlabel('time (s)')
+    ylabel('output response')
+    
+    %% Save step plot data
+    d = [t.',yP];
+    save('step-response-P.txt','d','-ascii');
+    
+    %% Integral compensation
+    CI1 = tf([1,1],[1,0]);
+    N1 = K*CI1;
+    GCLPI1 = N1*G/(1+N1*G*H);
+    
+    %% Compute and save root locus data (and plot)
+    figure;
+    [r,k] = root_locus_data(CI1*G*H,'root-locus-PI1.txt');
+    grid on
+    
+    %% Simulate the step response
+    yPI1 = step(GCLPI1,t);        % step response simulation
+    
+    %% Faster integral compensation
+    CI2 = tf([1,3],[1,0]);
+    K2 = 5.4;
+    N2 = K2*CI2;
+    GCLPI2 = N2*G/(1+N2*G*H);
+    
+    %% Simulate the step response
+    yPI2 = step(GCLPI2,t);        % step response simulation
+    
+    %% Plot step responses together
+    figure
+    plot(t,yP);hold on
+    plot(t,yPI1);
+    plot(t,yPI2);hold off
+    xlabel('time (s)')
+    ylabel('output response')
+    
+    %% Save step plot data
+    d = [t.',yP,yPI1,yPI2];
+    save('step-response-all.txt','d','-ascii');
+    
+    %% Compute transient response characteristics
+    S = stepinfo(yPI2,t);
+    sprintf('Tp = %0.3f sec',S.PeakTime)
+    sprintf('Tr = %0.3f sec',S.RiseTime)
+    
+    %% Sample rate
+    T = 5e-3;   % s ... sample period
+    fs = 1/T;   % Hz ... sample rate
+    
+    %% Discretize controller, G, and H
+    NT = c2d(N2,T,'Tustin');
+    GT = c2d(G,T,'Tustin');
+    HT = c2d(H,T,'Tustin');
+    GCLT = NT*GT/(1+NT*GT*HT);
+    
+    %% Simulate the step response
+    yPIT = step(GCLT,t);        % step response simulation
+    
+    %% Plot step responses together
+    figure
+    plot(t,yPI2);hold on
+    plot(t,YPIT);hold off
+    xlabel('time (s)')
+    ylabel('output response')
+end
