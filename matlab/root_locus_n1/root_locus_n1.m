@@ -1,4 +1,4 @@
-function root_locus_xk(varargin)
+function root_locus_n1(varargin)
     %% Load packages
     addpath('..')               % to load sibling packages
     import plotting.colors.*    % RTCBook colors
@@ -19,22 +19,18 @@ function root_locus_xk(varargin)
 %     parse(p,varargin{:});
 
     %% Define systems
-    zeta = [1.2,.8,.6,.4];
-    Z = [-.1,-.5,-1.5,2.5];
-    for n = 1:length(zeta)
-        for k = 1:length(Z)
-            sys(:,:,n,k) = tf([1,-Z(k)],[1,2*zeta(n),1]);
-        end
+    Z = [-.3,-.7,-1.1,-1.3];
+    for k = 1:length(Z)
+        sys(:,:,k) = tf([1,-Z(k)],[1,1,0]);
     end
-%     sys(:,:,1) = zpk([],[-1,-2],1);
     
     %% Compute and save root locus data (and plot)
     figure;
-    for n = 1:length(zeta)
-        for k = 1:length(Z)
-            filename = ['sys',num2str(n),num2str(k),'.txt'];
-            subplot(4,4,i)
-            [r,k] = root_locus_data(sys(:,:,i),filename);
-        end
+    for k = 1:length(Z)
+        filename = ['sys',num2str(k),'.txt'];
+        subplot(1,4,k)
+        [r,K] = root_locus_data(sys(:,:,k),filename);
+        xlim([-2,.5])
+        ylim([-3,3])
     end
 end
