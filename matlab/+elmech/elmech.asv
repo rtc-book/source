@@ -77,7 +77,7 @@ classdef elmech < handle
                 self.p.bm = 243e-6;
                 self.p.Km = 0.0661;
                 % mechanical
-                self.p.Jf = 0.324e-3;               % TODO
+% %                 self.p.Jf = 0.324e-3;               % TODO
 %                 self.p.Jf = 0;
                 self.p.bb = 0;                      % no bearing
                 % combined parameters
