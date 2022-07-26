@@ -18,6 +18,8 @@ We had intended to do several runs, but the difficulty in setup and time constra
 
 ![](load.jpg)
 
+The code that controls the experiment is in the `T1D1-workspace-solutions` repository in the directory [`pololu-18v17-amplifier-linearity-test`](https://github.com/rtc-book/T1D1-workspace-solutions/tree/main/pololu-18v17-amplifier-linearity-test).
+
 ## Results
 
 The raw data captures are shown below, scaled by the voltage divider gains.
