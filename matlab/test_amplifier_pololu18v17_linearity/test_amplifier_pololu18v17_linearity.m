@@ -77,6 +77,7 @@ grid on;
 xlabel('time (s)')
 ylabel('measured voltage (V)')
 legend('location','southeast');
+saveas(gcf,'raw-data.svg');
 
 % - voltage means for each level
 figure;
@@ -133,6 +134,7 @@ grid on;
 xlabel('nominal voltage (V)')
 ylabel('inferred current (A)')
 legend('location','southeast');
+saveas(gcf,'current-means.svg');
 
 %% Define functions
 
