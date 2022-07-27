@@ -5,11 +5,9 @@ clear;close all
 
 %% Known motor parameters
 
-stall_current = 22.06;                  % A ... motor curve/spec sheet
-terminal_voltage = 24.08;               % V ... motor curve/spec sheet
-p.R = terminal_voltage/stall_current;   % Ohms ... terminal resistance
-% p.Km = 0.0661;            % motor curve/spec sheet ... estimating instead
-% p.b = 243e-6;             % motor curve/spec sheet ... estimating instead
+p.R = 1.09;
+p.Km = 0.0661;
+% p.b = 243e-6;
 
 %% Run definitions
 
@@ -31,7 +29,7 @@ for k=1:numel(fn)
     for kp=1:numel(fnp)
         pk = run.(fn{k}).p;
         if isfield(p,fnp{kp})
-            post = '(spec sheet)';
+            post = '(previously estimated)';
         else
             post = '';
         end
@@ -108,13 +106,12 @@ function run_w_fit = fit_parameters(run)
     fo = fitoptions('Method','NonlinearLeastSquares',...
                'Lower',[0.01,1e-6,0.1,0.5],...
                'Upper',[0.1,5e-5,1000,3],...
-               'StartPoint',[0.05,30e-6,10,0.9]);
+               'StartPoint',[0.05,2e-6,10,0.9]);
     ft = fittype(ystep_s,'options',fo);
     [curve,gof] = fit(run.data.t(1:run.n_step),run.step_mean.',ft);
     run.p.wn = curve.wn;
     run.p.z = curve.z;
     run.p.b = curve.b;
-    run.p.Km = curve.Km;
     run.ft = ft;
     run.curve = curve;
     run.gof = gof;

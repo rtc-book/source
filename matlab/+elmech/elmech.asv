@@ -81,8 +81,9 @@ classdef elmech < handle
                 diameter_Jf = 2.5*2.54e-2;          % m ... flywheel diameter
                 length_Jf = 1.0*2.54e-2;            % m ... flywheel length
                 mass_Jf = density_Al*pi*(diameter_Jf/2)^2*length_Jf; % kg
-                self.p.Jf = 1/2*mass_Jf*(diameter_Jf/2)^2; % kg-m^2 ... flywheel inertia
-                self.p.bb = 0;                      % no external bearing
+                self.p.Jf = 1/2*mass_Jf*(diameter_Jf/2)^2; % kg-m^2 ... flywheel inert
+%                 self.p.Jf = 0;
+                self.p.bb = 0;                      % no bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
