@@ -1,7 +1,8 @@
 classdef elmech < handle
     % ELMECH a class for defining an electromechanical system
     properties
-        ts              % target system version, e.g. 'T1'
+        ts              % general target system version, e.g. 'T1'
+        tss             % specific target system version, e.g. 'T1a'
         source          % source type 'voltage' or 'current'
         variant         % target system variant, e.g. 'OJ+iL'
         v               % version string, e.g. 'T1_current_OJ+iL'
@@ -25,38 +26,61 @@ classdef elmech < handle
     end
     
     methods
-        function self = elmech(ts,source,variant)
+        function self = elmech(ts,tss,source,variant)
             if nargin < 1
                 ts = 'T1';
-                source = 'voltage';
+                tss = 'T1a';
+                source = 'current';
                 variant = 0;
             elseif nargin < 2
-                source = 'voltage';
+                tss = 'T1a';
+                source = 'current';
                 variant = 0;
             elseif nargin < 3
+                source = 'current';
+                variant = 0;
+            elseif nargin < 4
                 variant = 0;
             end
             self.ts = ts;
+            self.tss = tss;
             self.source = source;
             self.variant = variant;
             self.v = strcat(ts,'_',source,'_',string(variant));
-            self.params__con(ts,variant);
-            self.params_con(ts,variant);
+            self.params__con();
+            self.params_con(tss,variant);
             self.ss__con(ts,source,variant);
             self.ss_con();
             self.tf_con();
             self.first_second_order_con();
         end
-        function self = params__con(self,ts,variant)
-            syms R L Km J b positive
+        function self = params__con(self)
+            syms R L Km J b Ka positive
             self.p_.R = R;
             self.p_.L = L;
             self.p_.Km = Km;
             self.p_.J = J;
             self.p_.b = b;
+            self.p_.Ka = Ka;
         end
-        function self = params_con(self,ts,variant)
-            if ts == 'T0'
+        function self = params_con(self,tss,variant)
+            if strcmp(tss,'T1a')
+                % motor (Faulhaber 2342024 CR)
+                self.p.R = 7.1;         % Ohm
+                self.p.L = 265e-6;      % H
+                self.p.Jm = 5.8e-7;     % kg-m^2    
+                self.p.Km = 26.1e-3;    % N-m/A
+                self.p.tau_mech = 6e-3; % s ... mechanical time constant
+                self.p.bm = self.p.Jm/self.p.tau_mech;
+                % mechanical
+                self.p.Jf = 11.275e-6;  % kg-m^2
+                self.p.bb = 0;          % no external bearing
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p.b = self.p.bm + self.p.bb;
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.6;        % A/V
+            elseif strcmp(tss,'T1b')
                 % motor
                 self.p.R = 1.6;
                 self.p.L = 4.1e-3;
@@ -69,7 +93,9 @@ classdef elmech < handle
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
-            elseif ts == 'T1'
+                % amplifier (Copley 412)
+                self.p.Ka = 0.41;       % A/V
+            elseif strcmp(tss,'T2a')
                 % motor
                 self.p.R = 1.09;                    % phidgets_motor_estimation.m (deduced from spec sheet)
                 self.p.L = 0.0038106;               % estimated in phidgets_motor_estimation.m from step response measurement
@@ -86,11 +112,15 @@ classdef elmech < handle
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
+                % amplifier (Pololu 18v17, PWM)
+                self.p.Ka = 1;       % V/V
+            else
+                error(['Specific target system tss ',tss,' undefined']);
             end
         end
         function self = ss__con(self,ts,source,variant)
-            if (ts == 'T0') | (ts == 'T1')
-                if source == 'voltage'
+            if strcmp(ts,'T0') | strcmp(ts,'T1') | strcmp(ts,'T2')
+                if strcmp(source,'voltage')
                     self.states = {'\Omega_J','i_L'};
                     self.inputs = {'V_S'};
                     self.A_ = [
@@ -98,7 +128,7 @@ classdef elmech < handle
                         -self.p_.Km/self.p_.L,  -self.p_.R/self.p_.L;
                     ];
                     self.B_ = [
-                        0; 1/self.p_.L
+                        0; self.p_.Ka/self.p_.L
                     ];
                     if variant == 0
                         self.outputs = {'\Omega_J'};
@@ -109,14 +139,20 @@ classdef elmech < handle
                         self.C_ = [1, 0;0, 1];
                         self.D_ = [0; 0];
                     end
-                elseif source == 'current'
+                elseif strcmp(source,'current')
                     self.states = {'\Omega_J'};
                     self.inputs = {'I_S'};
-                    self.outputs = {'\Omega_J'};
                     self.A_ = [-self.p_.b/self.p_.J];
                     self.B_ = [self.p_.Km/self.p_.J];
-                    self.C_ = [1];
-                    self.D_ = [0];
+                    if variant == 0
+                        self.outputs = {'\Omega_J'};
+                        self.C_ = [1];
+                        self.D_ = [0];
+                    elseif strcmp(variant,'OJ+iL')
+                        self.outputs = {'\Omega_J','i_L'};
+                        self.C_ = [1;0];
+                        self.D_ = [0;1];
+                    end
                 end
             end
             [self.n,self.r] = size(self.B_);
@@ -155,10 +191,10 @@ classdef elmech < handle
         end
         function self = tau_con(self)
             syms s
-            [~,d] = numden(self.H_);            % numerator n, denominator d
+            [~,d] = numden(self.H_(1));            % numerator n, denominator d
             co = coeffs(d,s);                   % coefficients of the denominator
             cofactored = co/co(1);              % factored out const coefficient
-            self.p_.tau = sqrt(cofactored(2));  % rad/s ... tau   
+            self.p_.tau = cofactored(2);  % rad/s ... tau   
             self.p.tau = self.psubs(self.p_.tau); % numerical 
         end
         function obj = psubs(self,objin)

@@ -1,0 +1,35 @@
+function velocity_control(varargin)
+    %% Load packages
+    addpath('..')               % to load sibling packages
+    import elmech.*             % electromechanical system definition
+    import utils.*              % utilities like pwm function
+    import plotting.colors.*    % RTCBook colors
+    colors = plotting.colors(); % ... load them, set as default
+    
+    %% Parse arguments
+    ts_default = 'T1';              % default elmech system
+    source_default = 'current';     % default elmech system
+    variant_default = '';           % default elmech system
+    p = inputParser;
+    valid_ts = @(x) true;
+    valid_source = @(x) strcmp(x,'current'); % has to be voltage source model
+    valid_variant = @(x) true;
+    addParameter(p,'ts',ts_default,valid_ts);
+    addParameter(p,'source',source_default,valid_source);
+    addParameter(p,'variant',variant_default,valid_variant);
+    parse(p,varargin{:});
+
+    %% Define system
+    em = elmech(p.Results.ts,p.Results.source,p.Results.variant);
+    s = tf([1,0],[1]);
+    G = em.tf*
+
+    %% Voltage reversals and iL response
+
+    
+    
+%     save(strcat(em.v,'_u','_make.dat'),'dat_u','-ascii');
+%     save(strcat(em.v,'_i','_make.dat'),'dat_i','-ascii');
+
+
+end
