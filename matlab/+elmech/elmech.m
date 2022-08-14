@@ -68,12 +68,44 @@ classdef elmech < handle
                 % motor (Faulhaber 2342024 CR)
                 self.p.R = 7.1;         % Ohm
                 self.p.L = 265e-6;      % H
-                self.p.Jm = 5.8e-7;     % kg-m^2    
+                self.p.Jm = 5.8e-3/100^2;     % kg-m^2    
                 self.p.Km = 26.1e-3;    % N-m/A
                 self.p.tau_mech = 6e-3; % s ... mechanical time constant
                 self.p.bm = self.p.Jm/self.p.tau_mech;
                 % mechanical
-                self.p.Jf = 11.275e-6;  % kg-m^2
+                self.p.Jf = 5.6376e-7;  % kg-m^2
+                self.p.bb = 0;          % no external bearing
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p.b = self.p.bm + self.p.bb;
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.6;        % A/V
+            elseif strcmp(tss,'T1ab')
+                % motor (Faulhaber 2342036 CR)
+                self.p.R = 15.9;         % Ohm
+                self.p.L = 590e-6;      % H
+                self.p.Jm = 6.5e-3/100^2;     % kg-m^2    
+                self.p.Km = 41.4e-3;    % N-m/A
+                self.p.tau_mech = 6e-3; % s ... mechanical time constant
+                self.p.bm = self.p.Jm/self.p.tau_mech;
+                % mechanical
+                self.p.Jf = 8.9424e-7;  % kg-m^2
+                self.p.bb = 0;          % no external bearing
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p.b = self.p.bm + self.p.bb;
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.6;        % A/V
+            elseif strcmp(tss,'T1ac')
+                % motor (Faulhaber 2342048 CR)
+                self.p.R = 31.2;         % Ohm
+                self.p.L = 1050e-6;      % H
+                self.p.Jm = 6e-3/100^2;     % kg-m^2    
+                self.p.Km = 56.1e-3;    % N-m/A
+                self.p.tau_mech = 6e-3; % s ... mechanical time constant
+                self.p.bm = self.p.Jm/self.p.tau_mech;
+                % mechanical
+                self.p.Jf = 1.21176e-6;  % kg-m^2
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
@@ -143,7 +175,7 @@ classdef elmech < handle
                     self.states = {'\Omega_J'};
                     self.inputs = {'I_S'};
                     self.A_ = [-self.p_.b/self.p_.J];
-                    self.B_ = [self.p_.Km/self.p_.J];
+                    self.B_ = [self.p_.Ka*self.p_.Km/self.p_.J];
                     if variant == 0
                         self.outputs = {'\Omega_J'};
                         self.C_ = [1];
@@ -151,7 +183,7 @@ classdef elmech < handle
                     elseif strcmp(variant,'OJ+iL')
                         self.outputs = {'\Omega_J','i_L'};
                         self.C_ = [1;0];
-                        self.D_ = [0;1];
+                        self.D_ = [0;self.p_.Ka];
                     end
                 end
             end
