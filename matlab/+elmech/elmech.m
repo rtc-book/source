@@ -71,7 +71,9 @@ classdef elmech < handle
                 self.p.Jm = 5.8e-3/100^2;     % kg-m^2    
                 self.p.Km = 26.1e-3;    % N-m/A
                 self.p.tau_mech = 6e-3; % s ... mechanical time constant
-                self.p.bm = self.p.Jm/self.p.tau_mech;
+                self.p.Vsnom = 24;
+                self.p.noload_speed = 8500*2*pi/60;
+                self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
                 % mechanical
                 self.p.Jf = 5.6376e-7;  % kg-m^2
                 self.p.bb = 0;          % no external bearing
@@ -87,7 +89,9 @@ classdef elmech < handle
                 self.p.Jm = 6.5e-3/100^2;     % kg-m^2    
                 self.p.Km = 41.4e-3;    % N-m/A
                 self.p.tau_mech = 6e-3; % s ... mechanical time constant
-                self.p.bm = self.p.Jm/self.p.tau_mech;
+                self.p.Vsnom = 36;
+                self.p.noload_speed = 8100*2*pi/60;
+                self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
                 % mechanical
                 self.p.Jf = 8.9424e-7;  % kg-m^2
                 self.p.bb = 0;          % no external bearing
@@ -103,7 +107,9 @@ classdef elmech < handle
                 self.p.Jm = 6e-3/100^2;     % kg-m^2    
                 self.p.Km = 56.1e-3;    % N-m/A
                 self.p.tau_mech = 6e-3; % s ... mechanical time constant
-                self.p.bm = self.p.Jm/self.p.tau_mech;
+                self.p.Vsnom = 48;
+                self.p.noload_speed = 8000*2*pi/60;
+                self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
                 % mechanical
                 self.p.Jf = 1.21176e-6;  % kg-m^2
                 self.p.bb = 0;          % no external bearing

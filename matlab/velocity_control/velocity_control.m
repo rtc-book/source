@@ -8,9 +8,9 @@ function velocity_control(varargin)
     
     %% Parse arguments
     ts_default = 'T1';              % default elmech system
-    tss_default = 'T1a';            % default elmech system
+    tss_default = 'T1ac';            % default elmech system
     source_default = 'current';     % default elmech system
-    variant_default = 'OJ+iL';           % default elmech system
+    variant_default = 0;           % default elmech system
     p = inputParser;
     valid_ts = @(x) true;
     valid_tss = @(x) true;
@@ -31,16 +31,16 @@ function velocity_control(varargin)
     H = tf([1],[1]);                          % feedback transfer function
     figure;
     rlocus(G*H);
-%     ylim(10*[-1,1])
-    K1 = 0.001;                    % from root locus
+    xlim([-30,0]);
+    K1 = 0.89e-3;                    % from root locus
 %     GCLP = K1*G/(1+K1*G*H);         % closed-loop tf
 
     %% Design integral compensator
-    ZI = -100;                        % compensator zero
+    ZI = -10;                        % compensator zero
     CI_sans = (s - ZI)/s;           % compensator sans gain
     figure;
     rlocus(CI_sans*K1*G*H);
-    K2 = 1;                     % from root locus
+    K2 = 2.24;                     % from root locus
     N = K1*K2*CI_sans;
     
     %% Closed-loop and discretize system models
