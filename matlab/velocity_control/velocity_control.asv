@@ -24,32 +24,33 @@ function velocity_control(varargin)
 
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
-    G = em.tf(1);                   % output angular velocity
+    s = tf([1,0],[1]);              % make s a tf object
+    G = em.tf(1);                      % output angular velocity
     
     %% Design point
     Ts = 0.2;                       % sec ... design settling time
     psi_r = -4/Ts;                  % real part of design point psi
-    fprintf('Re(psi) = %f\n',psi_r);
+    disp(sprintf('Re(psi) = %f',psi_r));
     
     %% Design proportional controller
-    H = tf([1],[1]);                % feedback transfer function
+    H = tf([1],[1]);                          % feedback transfer function
     figure;
-    [r,k] = root_locus_data(G*H,'root-locus-P.txt');
-    grid on
+    rlocus(G*H);
     xlim([-30,0]);
-    K1 = 0.001;                     % from root locus
+    K1 = 0.001;                    % from root locus
+%     GCLP = K1*G/(1+K1*G*H);         % closed-loop tf
 
     %% Design integral compensator
     ZI = -1;                        % compensator zero
-    s = tf([1,0],[1]);              % s as tf object
     CI_sans = (s - ZI)/s;           % compensator sans gain
     figure;
-    [r,k] = root_locus_data(CI_sans*K1*G*H,'root-locus-PI.txt');
+    rlocus(CI_sans*K1*G*H);
     xlim([-30,0]);
     K2 = 1.07;                     % from root locus
     N = K1*K2*CI_sans;
     
-    %% Close loop and discretize system models
+    %% Closed-loop and discretize system models
+    
     GCL = N*G/(1+N*G*H);            % closed-loop tf
     T = 5e-3;                       % s ... sample period
     NT = c2d(N,T,'Tustin');         % using Tustin's method
@@ -60,18 +61,16 @@ function velocity_control(varargin)
     %% Simulate step command output responses
     R_rpm = 1000;                   % RPM ... command angular velocity
     R_rads = R_rpm*2*pi/60;         % rad/s
-    t = 0:T:0.4;
+    t = 0:T:0.6;
 %     yP = R_rads*step(GCLP,t);
     Omega = R_rads*step(GCL,t);
     OmegaT = R_rads*step(GCLT,t);
     
     %% Control effort
-    U_R = NT/(1+NT*GT*HT);          % control effort cl tf, amp input voltage
-    u = R_rads*step(U_R,t);         % amplifier input voltage
-    u_c = u*em.p.Ka;                % amplifier output current
-    u_v = em.p.R*u_c(1:end-1) + ... % amplifier output voltage
-        em.p.L*diff(u_c) +  ...
-        em.p.Km*OmegaT(1:end-1);
+    U_R = NT/(1+NT*GT*HT);              % control effort cl tf, voltage before amplifier
+    u = R_rads*step(U_R,t);         % control effort: amplifier input voltage
+    u_c = u*em.p.Ka;                % control effort: amplifier output current
+    u_v = em.p.R*u_c(1:end-1) + em.p.L*diff(u_c) + em.p.Km*OmegaT(1:end-1); % control effort: amplifier output voltage
     
     %% Plot step responses
     figure;
@@ -83,21 +82,12 @@ function velocity_control(varargin)
     subplot(2,1,2)
     yyaxis left
 %     plot(t,u,'linewidth',1); hold on
-    stairs(t,u_c*1e3,'linewidth',1); hold off
-    ylabel('control effort I_S (mA)')
+    stairs(t,u_c,'linewidth',1); hold off
+    ylabel('control effort I_S (A)')
     yyaxis right
     stairs(t(1:end-1),u_v,'linewidth',1);
     xlabel('time (s)')
     ylabel('v_S (V)')
-    
-    %% Save step plot data
-    d = [t.',Omega*60/(2*pi),OmegaT*60/(2*pi)];
-    save('step-response-Omega.txt','d','-ascii');
-    d = [t.',u_c*1e3];
-    save('step-response-uc.txt','d','-ascii');
-    u_v(end+1) = u_v(end); % for plot
-    d = [t.',u_v];
-    save('step-response-uv.txt','d','-ascii');
     
     %% PI gains
     
@@ -108,8 +98,7 @@ function velocity_control(varargin)
     
     %% Transient response characteristics
     
-    si = stepinfo(OmegaT,t);
-    disp(sprintf('Settling time: %f s',si.SettlingTime));
+    
     
 %     save(strcat(em.v,'_u','_make.dat'),'dat_u','-ascii');
 %     save(strcat(em.v,'_i','_make.dat'),'dat_i','-ascii');

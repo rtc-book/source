@@ -17,7 +17,7 @@ classdef elmech < handle
         C_              % state-space C-matrix, symbolic
         D_              % state-space D-matrix, symbolic
         ss              % matlab ss model, numeric
-        H_              % transfer function, symbolic
+        tf_              % transfer function, symbolic
         tf              % matlab tf model, numeric
         p_              % parameters, symbolic
         p               % parameters, numeric
@@ -205,9 +205,9 @@ classdef elmech < handle
         end
         function self = tf_con(self)
             syms s
-            self.H_ = self.C_*(s*eye(self.n) - self.A_)^-1*self.B_ + self.D_;
+            self.tf_ = self.C_*(s*eye(self.n) - self.A_)^-1*self.B_ + self.D_;
             self.tf = tf(self.ss);
-            self.dc_ = subs(self.H_,0);
+            self.dc_ = subs(self.tf_,0);
             self.dc = self.psubs(self.dc_);
         end
         function self = first_second_order_con(self)
@@ -219,7 +219,7 @@ classdef elmech < handle
         end
         function self = zwn_con(self)
             syms s
-            [~,d] = numden(self.H_(1));         % numerator n, denominator d
+            [~,d] = numden(self.tf_(1));         % numerator n, denominator d
             co = coeffs(d,s);                   % coefficients of the denominator
             cofactored = co/co(3);              % factored out s^2 coefficient
             self.p_.wn = sqrt(cofactored(1));   % rad/s ... natural frequency
@@ -229,7 +229,7 @@ classdef elmech < handle
         end
         function self = tau_con(self)
             syms s
-            [~,d] = numden(self.H_(1));            % numerator n, denominator d
+            [~,d] = numden(self.tf_(1));            % numerator n, denominator d
             co = coeffs(d,s);                   % coefficients of the denominator
             cofactored = co/co(1);              % factored out const coefficient
             self.p_.tau = cofactored(2);  % rad/s ... tau   
