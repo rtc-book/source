@@ -7,20 +7,23 @@ function voltage_reversals(varargin)
     colors = plotting.colors(); % ... load them, set as default
     
     %% Parse arguments
-    ts_default = 'T1';              % default elmech system
+    ts_default = 'T2';              % default elmech system
+    tss_default = 'T2a';            % default elmech system
     source_default = 'voltage';     % default elmech system
     variant_default = 'OJ+iL';      % default elmech system
     p = inputParser;
     valid_ts = @(x) true;
+    valid_tss = @(x) true;
     valid_source = @(x) strcmp(x,'voltage'); % has to be voltage source model
     valid_variant = @(x) true;
     addParameter(p,'ts',ts_default,valid_ts);
+    addParameter(p,'tss',tss_default,valid_tss);
     addParameter(p,'source',source_default,valid_source);
     addParameter(p,'variant',variant_default,valid_variant);
     parse(p,varargin{:});
 
     %% Define system
-    em = elmech(p.Results.ts,p.Results.source,p.Results.variant);
+    em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
     sys = em.ss;
     wn = em.p.wn;
 
