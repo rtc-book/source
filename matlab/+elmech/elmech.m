@@ -65,6 +65,24 @@ classdef elmech < handle
         end
         function self = params_con(self,tss,variant)
             if strcmp(tss,'T1a')
+                % motor (Faulhaber 2642048 CR)
+                self.p.R = 23.8;            % Ohm
+                self.p.L = 2200e-6;         % H
+                self.p.Jm = 11e-3/100^2;    % kg-m^2    
+                self.p.Km = 69.8e-3;        % N-m/A
+                self.p.tau_mech = 5.4e-3;   % s ... mechanical time constant
+                self.p.Vsnom = 48;
+                self.p.noload_speed = 6400*2*pi/60;
+                self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
+                % mechanical
+                self.p.Jf = 1.21176e-6;     % kg-m^2
+                self.p.bb = 0;              % no external bearing
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p.b = self.p.bm + self.p.bb;
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.6;        % A/V
+            elseif strcmp(tss,'T1ab')
                 % motor (Faulhaber 2342024 CR)
                 self.p.R = 7.1;         % Ohm
                 self.p.L = 265e-6;      % H
@@ -82,7 +100,7 @@ classdef elmech < handle
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.6;        % A/V
-            elseif strcmp(tss,'T1ab')
+            elseif strcmp(tss,'T1ac')
                 % motor (Faulhaber 2342036 CR)
                 self.p.R = 15.9;         % Ohm
                 self.p.L = 590e-6;      % H
@@ -100,7 +118,7 @@ classdef elmech < handle
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.6;        % A/V
-            elseif strcmp(tss,'T1ac')
+            elseif strcmp(tss,'T1ad')
                 % motor (Faulhaber 2342048 CR)
                 self.p.R = 31.2;         % Ohm
                 self.p.L = 1050e-6;      % H
@@ -172,10 +190,18 @@ classdef elmech < handle
                         self.outputs = {'\Omega_J'};
                         self.C_ = [1, 0];
                         self.D_ = [0];
-                    elseif variant == 'OJ+iL'
+                    elseif strcmp(variant,'OJ+iL')
                         self.outputs = {'\Omega_J','i_L'};
                         self.C_ = [1, 0;0, 1];
                         self.D_ = [0; 0];
+                    elseif strcmp(variant,'OJ+iL+TJ')
+                        self.outputs = {'\Omega_J','i_L','T_J'};
+                        self.C_ = [1, 0;0, 1;-self.p_.b, self.p_.Km];
+                        self.D_ = [0; 0; 0];
+                    elseif strcmp(variant,'OJ+iL+vL')
+                        self.outputs = {'\Omega_J','i_L','v_L'};
+                        self.C_ = [1, 0;0, 1;-self.p_.Km,-self.p_.R];
+                        self.D_ = [0; 0; 1];
                     end
                 elseif strcmp(source,'current')
                     self.states = {'\Omega_J'};
