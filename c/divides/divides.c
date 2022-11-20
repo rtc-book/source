@@ -14,7 +14,7 @@ void mean_div_first(void);
 main(void)
 {
     double t_sum_first, t_div_first;
-    for (int i = 0; i < M; ++i) {           // populate a w/randos
+    for (int i = 0; i < M; ++i) {           // populate a w/ random ints
         a[i] = rand();                      // see <\cite[§ 7.20.2]{c99}>
     }
     t_div_first = time_it(&mean_div_first);
