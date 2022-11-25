@@ -30,10 +30,10 @@ function voltage_reversals(varargin)
     %% Voltage reversals and iL response
 
     pwmp.amp = 2;       % V ... PWM amplitude
-    pwmp.w = wn/10;        % rad/s ... PWM frequency
+    pwmp.w = wn/20;        % rad/s ... PWM frequency
     pwmp.duty = 0.5;    % duty cycle
 
-    t_a = linspace(0,1*10*2*pi/wn,1e3);
+    t_a = linspace(0,2*pi/pwmp.w,1e3);
     u_a = zeros(1,length(t_a));
     for i = 1:length(t_a)
        u_a(1,i) = -pwmp.amp/2+pwm(t_a(i),pwmp.amp,pwmp.w,pwmp.duty); 

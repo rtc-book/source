@@ -81,7 +81,7 @@ classdef elmech < handle
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
+                self.p.Ka = 1;        % A/V
             elseif strcmp(tss,'T1ab')
                 % motor (Faulhaber 2342024 CR)
                 self.p.R = 7.1;         % Ohm
