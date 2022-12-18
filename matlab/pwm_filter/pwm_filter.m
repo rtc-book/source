@@ -7,7 +7,7 @@ colors = plotting.colors(); % ... load them, set as default
 
 % System definition
 
-em = elmech('T1','voltage','OJ+iL');
+em = elmech('T1','T1a','voltage','OJ+iL');
 sys = em.ss;
 wn = em.p.wn;
 dcg = em.dc;
@@ -39,7 +39,7 @@ wjs = kappa*dcg(1);             % steady state mean ΩJs
 dsb = 1e5;                      % dividing down factor for plots
 
 wlen = length(pwmp.w);
-t_a = linspace(0,2*pi/wn*5,1e6);
+t_a = linspace(0,2*pi/wn*10,1e6);
 u_a = zeros(wlen,length(t_a));
 for j = 1:wlen
    u_a(j,:) = utils.pwm(t_a,pwmp.amp,pwmp.w(j),pwmp.duty); 
@@ -102,7 +102,7 @@ pwmp.duty = 0.5;   % duty cycle
 dsb = 1e5;
 
 wlen = length(pwmp.w);
-t_a = linspace(0,2*pi/wn*5,1e7);
+t_a = linspace(0,2*pi/wn*7,1e7);
 u_a = zeros(wlen,length(t_a));
 for j = 1:wlen
     u_a(j,:) = utils.pwm(t_a,pwmp.amp,pwmp.w(j),pwmp.duty); 
