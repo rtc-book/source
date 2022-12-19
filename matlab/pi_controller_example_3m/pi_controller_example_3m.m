@@ -8,17 +8,18 @@ function pi_controller_example_3m(varargin)
     %% Parse arguments
 
     %% Define system
-    G = tf([3,45],[1,10,50]);
-    H = tf([10],[1,10]);
+    GP1 = tf([10],[1,10]);		% first part of GP
+    GP2 = tf([3,45],[1,10,50]);	% second part
+    GP = GP1*GP2;				% combine transfer functions
     
     %% Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(G*H,'root-locus-P.txt');
+    [r,k] = root_locus_data(GP,'root-locus-P.txt');
     grid on
     
     %% Define the closed-loop transfer function
-    K = 0.595;               % from root locus
-    GCLP = K*G/(1+K*G*H);   % closed-loop tf
+    K = 1.65;               % from root locus
+    GCLP = K*GP/(1+K*GP);   % closed-loop tf
     
     %% Simulate the step response
     t = linspace(0,3,200);  % time array
@@ -35,13 +36,13 @@ function pi_controller_example_3m(varargin)
     save('step-response-P.txt','d','-ascii');
     
     %% Integral compensation
-    CI1 = tf([1,1],[1,0]);
-    N1 = K*CI1;
-    GCLPI1 = N1*G/(1+N1*G*H);
+    CI = tf([1,1],[1,0]);
+    GC = K*CI;
+    GCLPI = GC*GP/(1+GC*GP);	% closed-loop tf for PI control
     
     %% Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(CI1*G*H,'root-locus-PI1.txt');
+    [r,k] = root_locus_data(CI*GP,'root-locus-PI1.txt');
     grid on
     
     %% Simulate the step response
@@ -49,9 +50,9 @@ function pi_controller_example_3m(varargin)
     
     %% Faster integral compensation
     CI2 = tf([1,4],[1,0]);
-    K2 = 1.36;
-    N2 = K2*CI2;
-    GCLPI2 = N2*G/(1+N2*G*H);
+    K2 = 1.45;
+    GC2 = K2*CI2;
+    GCLPI2 = GC2*GP/(1+GC2*GP);
     
     %% Simulate the step response
     yPI2 = step(GCLPI2,t);        % step response simulation
