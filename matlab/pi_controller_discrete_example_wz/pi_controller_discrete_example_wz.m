@@ -8,17 +8,17 @@ function pi_controller_discrete_example_wz(varargin)
     %% Parse arguments
 
     %% Define system
-    G = tf([64],[1,12,32]);
-    H = tf([2,20],[1,20]);
+    GP = tf([2,20],[1,20])*tf([64],[1,12,32]);
+    H = tf([1],[1]);
     
     %% Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(G*H,'root-locus-P.txt');
+    [r,k] = root_locus_data(GP*H,'root-locus-P.txt');
     grid on
     
     %% Define the closed-loop transfer function
     K = 3.66;               % from root locus
-    GCLP = K*G/(1+K*G*H);   % closed-loop tf
+    GCLP = K*GP/(1+K*GP*H);   % closed-loop tf
     
     %% Simulate the step response
     t = linspace(0,1,200);  % time array
@@ -36,22 +36,22 @@ function pi_controller_discrete_example_wz(varargin)
     
     %% Integral compensation
     CI1 = tf([1,1],[1,0]);
-    N1 = K*CI1;
-    GCLPI1 = N1*G/(1+N1*G*H);
+    GC1 = K*CI1;
+    GCLPI1 = GC1*GP/(1+GC1*GP*H);
     
     %% Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(CI1*G*H,'root-locus-PI1.txt');
+    [r,k] = root_locus_data(CI1*GP*H,'root-locus-PI1.txt');
     grid on
     
     %% Simulate the step response
     yPI1 = step(GCLPI1,t);        % step response simulation
     
     %% Faster integral compensation
-    CI2 = tf([1,3],[1,0]);
-    K2 = 5.4;
-    N2 = K2*CI2;
-    GCLPI2 = N2*G/(1+N2*G*H);
+    CI2 = tf([1,2],[1,0]);
+    K2 = 4;
+    GC2 = K2*CI2;
+    GCLPI2 = GC2*GP/(1+GC2*GP*H);
     
     %% Simulate the step response
     yPI2 = step(GCLPI2,t);        % step response simulation
@@ -77,32 +77,32 @@ function pi_controller_discrete_example_wz(varargin)
     T = 10e-3;   % s ... sample period
     fs = 1/T;   % Hz ... sample rate
     
-    %% Discretize controller, G, and H
-    NT = c2d(N2,T,'Tustin');
-    GT = c2d(G,T,'Tustin');
-    HT = c2d(H,T,'Tustin');
-    GCLT = NT*GT/(1+NT*GT*HT);
+    %% Discretize controller, GP, and H
+    Nd = c2d(GC2,T,'Tustin');
+    GPd = c2d(GP,T,'Tustin');
+    Hd = c2d(H,T,'Tustin');
+    GCLd = Nd*GPd/(1+Nd*GPd*Hd);
     
     %% Simulate the step response
-    tT = 0:T:1;
-    yPIT = step(GCLT,tT);        % step response simulation
+    td = 0:T:1;
+    yPId = step(GCLd,td);        % step response simulation
     
     %% Simulate the control effort
-    UoRT = NT/(1+NT*GT*HT);
-    uPIT = step(UoRT,tT);
+    UoRd = Nd/(1+Nd*GPd*Hd);
+    uPId = step(UoRd,td);
     
     %% Plot step responses together
     figure
     yyaxis left
     plot(t,yPI2);hold on
-    plot(tT,yPIT);hold off
+    plot(td,yPId);hold off
     ylabel('output response')
     yyaxis right
-    plot(tT,uPIT);
+    plot(td,uPId);
     xlabel('time (s)')
     ylabel('control effort')
     
     %% Save more step plot data
-    d = [tT.',yPIT,uPIT];
+    d = [td.',yPId,uPId];
     save('step-response-digital.txt','d','-ascii');
 end

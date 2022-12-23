@@ -8,7 +8,7 @@ function pi_controller_example_c4(varargin)
     %% Parse arguments
 
     %% Define system
-    G = tf([25],[1,6,25]);
+    GP = tf([25],[1,6,25]);
     H = tf([1],[1]);
     
     %% Design point
@@ -25,12 +25,12 @@ function pi_controller_example_c4(varargin)
     
     %% Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(G*H,'root-locus-P.txt');
+    [r,k] = root_locus_data(GP*H,'root-locus-P.txt');
     grid on
     
     %% Define the closed-loop transfer function
     K1 = 0.734;               % from root locus
-    GCLP = K1*G/(1+K1*G*H);   % closed-loop tf
+    GCLP = K1*GP/(1+K1*GP*H);   % closed-loop tf
     
     %% Simulate the step response
     t = linspace(0,2,200);  % time array
@@ -47,7 +47,7 @@ function pi_controller_example_c4(varargin)
     save('step-response-P.txt','d','-ascii');
     
     %% Derivative compensation
-    theta_c = pi - angle(evalfr(G,psi));
+    theta_c = pi - angle(evalfr(GP,psi));
     disp(sprintf('theta_c = %0.3g deg',rad2deg(theta_c)));
     zD = real(psi) - imag(psi)/tan(theta_c);
     disp(sprintf('zD = %0.3g',zD));
@@ -55,13 +55,13 @@ function pi_controller_example_c4(varargin)
     
     % Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(K1*CD_sans*G*H,'root-locus-PD.txt');
+    [r,k] = root_locus_data(K1*CD_sans*GP*H,'root-locus-PD.txt');
     grid on
     
     % Complete derivative compensation
     K2 = 0.48;                  % from the root locus
-    N_PD = K1*K2*CD_sans;         % PD controller
-    GCLPD1 = N_PD*G/(1+N_PD*G*H);   % closed-loop tf
+    GCPD = K1*K2*CD_sans;         % PD controller
+    GCLPD1 = GCPD*GP/(1+GCPD*GP*H);   % closed-loop tf
     
     % Simulate the step response
     yPD1 = step(GCLPD1,t);        % step response simulation
@@ -72,13 +72,13 @@ function pi_controller_example_c4(varargin)
     
     % Compute and save root locus data (and plot)
     figure;
-    [r,k] = root_locus_data(N_PD*CI_sans*G*H,'root-locus-PID.txt');
+    [r,k] = root_locus_data(GCPD*CI_sans*GP*H,'root-locus-PID.txt');
     grid on
     
     % Complete integral compensation
     K3 = 1.21;
-    N_PID = K1*K2*K3*CD_sans*CI_sans;
-    GCLPID1 = N_PID*G/(1+N_PID*G*H);
+    GCPID = K1*K2*K3*CD_sans*CI_sans;
+    GCLPID1 = GCPID*GP/(1+GCPID*GP*H);
     
     % Simulate the step response
     yPID1 = step(GCLPID1,t);        % step response simulation
