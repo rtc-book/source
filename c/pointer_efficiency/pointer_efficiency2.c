@@ -19,31 +19,31 @@ void index_looper(void);
 void pointer_looper(void);
 
 int main(int argc, const char * argv[]) {
-    time_it(&index_looper);
-    time_it(&pointer_looper);
-    return 0;
+  time_it(&index_looper);
+  time_it(&pointer_looper);
+  return 0;
 }
 
 void index_looper(void)
 {
-    for (i=0; i < N; i++) {
-        x[i] = 1;
-    }
+  for (i=0; i < N; i++) {
+    x[i] = 1;
+  }
 }
 
 void pointer_looper(void)
 {
-    for (i=0; yp < &y[N];) {
-        *yp++ = 1;
-    }
+  for (i=0; yp < &y[N];) {
+    *yp++ = 1;
+  }
 }
 
-    void
-time_it( void (*f)(void) ) {
-    clock_t tic = clock();
-    (*f)();
-    clock_t toc = clock();
-    printf("Run-time: %f s\n",
-        (double)(toc - tic)/CLOCKS_PER_SEC
-    );
+void time_it( void (*f)(void) ) {
+  clock_t tic = clock();
+  (*f)();
+  clock_t toc = clock();
+  printf(
+    "Run-time: %f s\n",
+    (double)(toc - tic)/CLOCKS_PER_SEC
+  );
 }
