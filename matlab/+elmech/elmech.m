@@ -23,6 +23,7 @@ classdef elmech < handle
         p               % parameters, numeric
         dc_             % dc gain(s), symbolic
         dc              % dc gain(s), numeric
+        tss_versions    % specific TS versions (for exporting .mat files)
     end
     
     methods
@@ -53,6 +54,8 @@ classdef elmech < handle
             self.ss_con();
             self.tf_con();
             self.first_second_order_con();
+            % for exporting .mat files
+            self.tss_versions = {'T1a','T1ab','T1ac','T1ad','T1b','T2a'};
         end
         function self = params__con(self)
             syms R L Km J b Ka positive
@@ -267,6 +270,17 @@ classdef elmech < handle
             % 
             %   returns a double
             obj = double(subs(objin,self.p));
+        end
+        function self = export_parameters(self)
+            for i = 1:length(self.tss_versions)
+                tss = self.tss_versions{i};
+                fname = join(['elmech_params_',tss,'.mat']);
+                disp(['Saving properties for ',tss,' to file ',fname])
+                self.params_con(tss,0); % change to tss
+                disp(self.p)
+                p = self.p; % for the weird save command
+                save(fname,'p');
+            end
         end
     end
 end
