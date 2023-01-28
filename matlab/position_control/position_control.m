@@ -29,8 +29,8 @@ function position_control(varargin)
     H = tf([1],[1]);                % unity feedback
     
     %% Design PIDF controller with pidtune
-    Tr = 0.02;                      % design closed-loop rise time (conservative)
-    wc=1/Tr;                        % control bandwidth (gain crossover frequency)
+    Tr = 0.04;                      % design closed-loop rise time (conservative)
+    wc=2/Tr;                        % control bandwidth (gain crossover frequency)
     options = pidtuneOptions('DesignFocus','reference-tracking');
     N = pidtune(G*H,'pidf',wc,options);
     GCL = N*G/(1+N*G*H);            % closed-loop tf Theta/U_a
