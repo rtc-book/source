@@ -8,7 +8,7 @@ function velocity_control(varargin)
     
     %% Parse arguments
     ts_default = 'T1';              % default elmech system
-    tss_default = 'T1ac';            % default elmech system
+    tss_default = 'T1a';            % default elmech system
     source_default = 'current';     % default elmech system
     variant_default = 0;           % default elmech system
     p = inputParser;
@@ -53,9 +53,10 @@ function velocity_control(varargin)
     GCL = GC*GP/(1+GC*GP*H);            % closed-loop tf
     T = 5e-3;                       % s ... sample period
     GCd = c2d(GC,T,'Tustin');         % using Tustin's method
-    Gd = c2d(GP,T,'Tustin');
+    GPd = c2d(GP,T,'Tustin');
     Hd = c2d(H,T,'Tustin');
-    GCLd = GCd*Gd/(1+GCd*Gd*Hd);      % discrete closed-loop tf
+%     GCLd = GCd*GPd/(1+GCd*GPd*Hd);      % discrete closed-loop tf
+    GCLd = feedback(GCd*GPd,Hd);      % discrete closed-loop tf
     
     %% Simulate step command output responses
     R_rpm = 1000;                   % RPM ... command angular velocity
@@ -66,7 +67,7 @@ function velocity_control(varargin)
     Omegad = R_rads*step(GCLd,t);
     
     %% Control effort
-    U_R = GCd/(1+GCd*Gd*Hd);          % control effort cl tf, amp input voltage
+    U_R = GCd/(1+GCd*GPd*Hd);          % control effort cl tf, amp input voltage
     u = R_rads*step(U_R,t);         % amplifier input voltage
     u_c = u*em.p.Ka;                % amplifier output current
     u_v = em.p.R*u_c(1:end-1) + ... % amplifier output voltage
@@ -114,5 +115,5 @@ function velocity_control(varargin)
 %     save(strcat(em.v,'_u','_make.dat'),'dat_u','-ascii');
 %     save(strcat(em.v,'_i','_make.dat'),'dat_i','-ascii');
 
-
+    
 end
