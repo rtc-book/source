@@ -78,13 +78,18 @@ classdef elmech < handle
                 self.p.noload_speed = 6400*2*pi/60;
                 self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
                 % mechanical
-                self.p.Jf = 1.21176e-6;     % kg-m^2
+                fly_density = 2700;         % kg/m^3 ... aluminum
+                fly_diameter = 0.030;       % m
+                fly_thick = 0.005;          % m 
+                fly_volume = pi/4*fly_diameter^2*fly_thick; % m^3
+                fly_mass = fly_density*fly_volume; % kg
+                self.p.Jf = 1/2*fly_mass*(fly_diameter/2)^2;     % kg-m^2
                 self.p.bb = 0;              % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
+                self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ab')
                 % motor (Faulhaber 2342024 CR)
                 self.p.R = 7.1;         % Ohm
@@ -102,7 +107,7 @@ classdef elmech < handle
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
+                self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ac')
                 % motor (Faulhaber 2342036 CR)
                 self.p.R = 15.9;         % Ohm
@@ -120,7 +125,7 @@ classdef elmech < handle
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
+                self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ad')
                 % motor (Faulhaber 2342048 CR)
                 self.p.R = 31.2;         % Ohm
@@ -138,7 +143,7 @@ classdef elmech < handle
                 self.p.J = self.p.Jm + self.p.Jf;
                 self.p.b = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
+                self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1b')
                 % motor
                 self.p.R = 1.6;

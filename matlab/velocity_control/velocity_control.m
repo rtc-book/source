@@ -36,17 +36,17 @@ function velocity_control(varargin)
     figure;
     [r,k] = root_locus_data(GP*H,'root-locus-P.txt');
     grid on
-    xlim([-30,0]);
-    K1 = 1.13e-3;                     % from root locus
+    xlim([-40,0]);
+    K1 = 9.08e-3;                     % from root locus
 
     %% Design integral compensator
-    ZI = -1;                        % compensator zero
+    ZI = -20;                        % compensator zero
     s = tf([1,0],[1]);              % s as tf object
     CI_sans = (s - ZI)/s;           % compensator sans gain
     figure;
     [r,k] = root_locus_data(CI_sans*K1*GP*H,'root-locus-PI.txt');
-    xlim([-30,0]);
-    K2 = 1.13;                     % from root locus
+    xlim([-40,0]);
+    K2 = 2.15;                     % from root locus
     GC = K1*K2*CI_sans;
     
     %% Close loop and discretize system models
