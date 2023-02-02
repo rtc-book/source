@@ -8,7 +8,7 @@ function position_control(varargin)
     
     %% Parse arguments
     ts_default = 'T1';              % default elmech system
-    tss_default = 'T1ac';            % default elmech system
+    tss_default = 'T1a';            % default elmech system
     source_default = 'current';     % default elmech system
     variant_default = 0;           % default elmech system
     p = inputParser;
