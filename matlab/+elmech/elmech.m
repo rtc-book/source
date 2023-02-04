@@ -58,12 +58,12 @@ classdef elmech < handle
             self.tss_versions = {'T1a','T1ab','T1ac','T1ad','T1b','T2a'};
         end
         function self = params__con(self)
-            syms R L Km J b Ka positive
+            syms R L Km J B Ka positive
             self.p_.R = R;
             self.p_.L = L;
             self.p_.Km = Km;
             self.p_.J = J;
-            self.p_.b = b;
+            self.p_.B = B;
             self.p_.Ka = Ka;
         end
         function self = params_con(self,tss,variant)
@@ -87,7 +87,7 @@ classdef elmech < handle
                 self.p.bb = 0;              % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ab')
@@ -105,7 +105,7 @@ classdef elmech < handle
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ac')
@@ -123,7 +123,7 @@ classdef elmech < handle
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ad')
@@ -141,7 +141,7 @@ classdef elmech < handle
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1b')
@@ -156,7 +156,7 @@ classdef elmech < handle
                 self.p.bb = self.p.bm;
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Copley 412)
                 self.p.Ka = 0.41;       % A/V
             elseif strcmp(tss,'T2a')
@@ -175,7 +175,7 @@ classdef elmech < handle
                 self.p.bb = 0;                      % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Pololu 18v17, PWM)
                 self.p.Ka = 1;       % V/V
             else
@@ -188,7 +188,7 @@ classdef elmech < handle
                     self.states = {'\Omega_J','i_L'};
                     self.inputs = {'V_S'};
                     self.A_ = [
-                        -self.p_.b/self.p_.J,   self.p_.Km/self.p_.J;
+                        -self.p_.B/self.p_.J,   self.p_.Km/self.p_.J;
                         -self.p_.Km/self.p_.L,  -self.p_.R/self.p_.L;
                     ];
                     self.B_ = [
@@ -204,7 +204,7 @@ classdef elmech < handle
                         self.D_ = [0; 0];
                     elseif strcmp(variant,'OJ+iL+TJ')
                         self.outputs = {'\Omega_J','i_L','T_J'};
-                        self.C_ = [1, 0;0, 1;-self.p_.b, self.p_.Km];
+                        self.C_ = [1, 0;0, 1;-self.p_.B, self.p_.Km];
                         self.D_ = [0; 0; 0];
                     elseif strcmp(variant,'OJ+iL+vL')
                         self.outputs = {'\Omega_J','i_L','v_L'};
@@ -214,7 +214,7 @@ classdef elmech < handle
                 elseif strcmp(source,'current')
                     self.states = {'\Omega_J'};
                     self.inputs = {'I_S'};
-                    self.A_ = [-self.p_.b/self.p_.J];
+                    self.A_ = [-self.p_.B/self.p_.J];
                     self.B_ = [self.p_.Km/self.p_.J];
                     if variant == 0
                         self.outputs = {'\Omega_J'};

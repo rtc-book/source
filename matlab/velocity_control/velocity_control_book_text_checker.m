@@ -6,8 +6,8 @@ psi_r = -4 / Ts;              % real part of design point psi
 
 load("../elmech_params/elmech_params_T1a.mat");
 
-tau = p.J / p.b;                         % time constant
- GP = tf([p.Ka * p.Km / p.b], [tau, 1]);  % electromech. system
+tau = p.J / p.B;                         % time constant
+ GP = tf([p.Ka * p.Km / p.B], [tau, 1]);  % electromech. system
                                           % transfer func.
 H = tf([1], [1]); % feedback transfer function
 
