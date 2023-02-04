@@ -25,7 +25,7 @@ function position_control(varargin)
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
     s = tf([1,0],[1]);              % make s a tf object
-    G = em.tf/s;                    % plant tf, Theta/U_a
+    G = em.p.Ka*em.tf/s;                    % plant tf, Theta/U_a
     H = tf([1],[1]);                % unity feedback
     
     %% Design PIDF controller with pidtune

@@ -24,7 +24,7 @@ function velocity_control(varargin)
 
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
-    GP = em.tf(1);                   % output angular velocity
+    GP = em.p.Ka*em.tf(1);                   % output angular velocity
     
     %% Design point
     Ts = 0.2;                       % sec ... design settling time

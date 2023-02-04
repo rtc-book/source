@@ -24,6 +24,7 @@ function voltage_reversals(varargin)
 
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
+%     em.p.Ka = 1; % setting the gain to 1 because we're talking about the amplifier output voltage in this problem
     sys = em.ss;
     wn = em.p.wn;
 
@@ -33,23 +34,32 @@ function voltage_reversals(varargin)
     pwmp.w = wn/20;        % rad/s ... PWM frequency
     pwmp.duty = 0.5;    % duty cycle
 
-    t_a = linspace(0,2*pi/pwmp.w,1e3);
-    u_a = zeros(1,length(t_a));
-    for i = 1:length(t_a)
-       u_a(1,i) = -pwmp.amp/2+pwm(t_a(i),pwmp.amp,pwmp.w,pwmp.duty); 
+    T = 2*pi/pwmp.w;
+    dt_sim = T/1e5; % simulation dt
+    t_a_sim = 0:dt_sim:T;
+    u_a_sim = zeros(1,length(t_a_sim));
+    for i = 1:length(t_a_sim)
+       u_a_sim(1,i) = -pwmp.amp/2+pwm(t_a_sim(i),pwmp.amp,pwmp.w,pwmp.duty); 
     end
-
-    y = lsim(sys,u_a(1,:),t_a,[0,0]);
-    O_a = y(:,1);
-    i_a = y(:,2);
-    v_a = y(:,3);
+    dt = T/5e2; % graphing dt, nominal
+%     t_a1 = 0:dt:T/2-3*dt; % nonuniform wouldn't plot with pgfplots :/
+%     t_a2 = T/2-2*dt:dt/10:T/2+2*dt;
+%     t_a3 = T/2+3*dt:dt:T;
+%     t_a = cat(2,t_a1,t_a2,t_a3).';
+    t_a = 0:dt:T;
+    u_a = interp1(t_a_sim,u_a_sim,t_a);
+    
+    y = lsim(sys,u_a_sim(1,:),t_a_sim,[0,0]);
+    O_a = interp1(t_a_sim,y(:,1),t_a);
+    i_a = interp1(t_a_sim,y(:,2),t_a);
+    v_a = interp1(t_a_sim,y(:,3),t_a);
 %     T_a = y(:,3);
     
     t_an = t_a.'*wn/(2*pi);
     u_an = u_a.';
-    O_an = O_a;
-    i_an = i_a;
-    v_an = v_a;
+    O_an = O_a.';
+    i_an = i_a.';
+    v_an = v_a.';
 %     T_an = T_a;
     dat_u = [t_an,u_an];
     dat_O = [t_an,O_an];

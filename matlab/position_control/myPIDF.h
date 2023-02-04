@@ -1,6 +1,6 @@
 //---PIDF position control, wc = 50 r/s
-//---03-Feb-2023 00:26:47
-    char        headerTime[] = "03-Feb-2023 00:26:47";
+//---03-Feb-2023 03:03:30
+    char        headerTime[] = "03-Feb-2023 03:03:30";
     int         PIDF_ns = 1;              // number of sections
     uint32_t    timeoutValue = 5000;      // time interval - us; f_s = 200 Hz
     static	struct	biquad PIDF[]={   // define the array of floating point biquads

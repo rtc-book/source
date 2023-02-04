@@ -192,7 +192,7 @@ classdef elmech < handle
                         -self.p_.Km/self.p_.L,  -self.p_.R/self.p_.L;
                     ];
                     self.B_ = [
-                        0; self.p_.Ka/self.p_.L
+                        0; 1/self.p_.L
                     ];
                     if variant == 0
                         self.outputs = {'\Omega_J'};
@@ -215,7 +215,7 @@ classdef elmech < handle
                     self.states = {'\Omega_J'};
                     self.inputs = {'I_S'};
                     self.A_ = [-self.p_.b/self.p_.J];
-                    self.B_ = [self.p_.Ka*self.p_.Km/self.p_.J];
+                    self.B_ = [self.p_.Km/self.p_.J];
                     if variant == 0
                         self.outputs = {'\Omega_J'};
                         self.C_ = [1];
@@ -223,7 +223,7 @@ classdef elmech < handle
                     elseif strcmp(variant,'OJ+iL')
                         self.outputs = {'\Omega_J','i_L'};
                         self.C_ = [1;0];
-                        self.D_ = [0;self.p_.Ka];
+                        self.D_ = [0;1];
                     end
                 end
             end
