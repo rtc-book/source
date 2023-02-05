@@ -41,7 +41,7 @@ function voltage_reversals(varargin)
     for i = 1:length(t_a_sim)
        u_a_sim(1,i) = -pwmp.amp/2+pwm(t_a_sim(i),pwmp.amp,pwmp.w,pwmp.duty); 
     end
-    dt = T/5e2; % graphing dt, nominal
+    dt = T/1e3; % graphing dt, nominal
 %     t_a1 = 0:dt:T/2-3*dt; % nonuniform wouldn't plot with pgfplots :/
 %     t_a2 = T/2-2*dt:dt/10:T/2+2*dt;
 %     t_a3 = T/2+3*dt:dt:T;
