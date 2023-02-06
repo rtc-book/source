@@ -8,9 +8,9 @@ function voltage_reversals(varargin)
     
     %% Parse arguments
     ts_default = 'T1';              % default elmech system
-    tss_default = 'T1a';            % default elmech system
+    tss_default = 'T1aex41';            % default elmech system
     source_default = 'voltage';     % default elmech system
-    variant_default = 'OJ+iL+vL';      % default elmech system
+    variant_default = 'OJ+iL+vL';   % default elmech system
     p = inputParser;
     valid_ts = @(x) true;
     valid_tss = @(x) true;
@@ -24,14 +24,13 @@ function voltage_reversals(varargin)
 
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
-%     em.p.Ka = 1; % setting the gain to 1 because we're talking about the amplifier output voltage in this problem
     sys = em.ss;
     wn = em.p.wn;
 
     %% Voltage reversals and iL response
 
     pwmp.amp = 2;       % V ... PWM amplitude
-    pwmp.w = wn/20;        % rad/s ... PWM frequency
+    pwmp.w = wn/10;        % rad/s ... PWM frequency
     pwmp.duty = 0.5;    % duty cycle
 
     T = 2*pi/pwmp.w;

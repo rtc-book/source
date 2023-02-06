@@ -90,6 +90,29 @@ classdef elmech < handle
                 self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
+            elseif strcmp(tss,'T1aex41')
+                % motor (Faulhaber 2642048 CR)
+                self.p.R = 23.8;            % Ohm
+                self.p.L = 10*2200e-6;         % H
+                self.p.Jm = 11e-3/100^2;    % kg-m^2    
+                self.p.Km = 69.8e-3;        % N-m/A
+                self.p.tau_mech = 5.4e-3;   % s ... mechanical time constant
+                self.p.Vsnom = 48;
+                self.p.noload_speed = 6400*2*pi/60;
+                self.p.bm = 4*(self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
+                % mechanical
+                fly_density = 2700;         % kg/m^3 ... aluminum
+                fly_diameter = 0.030;       % m
+                fly_thick = 0.005;          % m 
+                fly_volume = pi/4*fly_diameter^2*fly_thick; % m^3
+                fly_mass = fly_density*fly_volume; % kg
+                self.p.Jf = 1/2*fly_mass*(fly_diameter/2)^2;     % kg-m^2
+                self.p.bb = 0;              % no external bearing
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p.B = self.p.bm + self.p.bb;
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1ab')
                 % motor (Faulhaber 2342024 CR)
                 self.p.R = 7.1;         % Ohm
