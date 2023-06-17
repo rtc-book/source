@@ -8,5 +8,5 @@ $(info $$targets is [${targets}])
 
 all: $(targets)
 
-%.dat: $(sources)
+%.mat: $(sources)
 	cd $(dir $@) && matlab -nosplash -nodesktop -nodisplay -r 'make;exit'
