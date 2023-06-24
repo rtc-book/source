@@ -1,0 +1,177 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5835,        169]
+NotebookOptionsPosition[      5173,        150]
+NotebookOutlinePosition[      5567,        166]
+CellTagsIndexPosition[      5524,        163]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"x", "^", "2"}], "*", 
+      RowBox[{"Exp", "[", 
+       RowBox[{
+        RowBox[{"-", "1"}], "*", "x"}], "]"}], "*", 
+      RowBox[{
+       RowBox[{"Cos", "[", 
+        RowBox[{"5", "*", "x"}], "]"}], "^", "2"}]}], "+", ".2"}], " ", "//", 
+    " ", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Print", "[", 
+        RowBox[{"D", "[", 
+         RowBox[{"#", ",", "x"}], "]"}], "]"}], ",", "#", ",", 
+       RowBox[{"#", "-", 
+        RowBox[{
+         RowBox[{"D", "[", 
+          RowBox[{"#", ",", "x"}], "]"}], "*", "x"}]}], ",", 
+       RowBox[{"D", "[", 
+        RowBox[{"#", ",", "x"}], "]"}], ",", 
+       RowBox[{"#", "/.", 
+        RowBox[{"{", 
+         RowBox[{"x", "->", 
+          RowBox[{"x", "+", ".05"}]}], "}"}]}]}], "}"}], "&"}]}], " ", ")"}], 
+  "/.", " ", 
+  RowBox[{"{", 
+   RowBox[{"x", "->", " ", ".5"}], "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"(", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      RowBox[{"x", "^", "2"}], "*", 
+      RowBox[{"Exp", "[", 
+       RowBox[{
+        RowBox[{"-", "1"}], "*", "x"}], "]"}], "*", 
+      RowBox[{
+       RowBox[{"Cos", "[", 
+        RowBox[{"5", "*", "x"}], "]"}], "^", "2"}]}], "+", ".2"}], " ", "//", 
+    " ", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"#", ",", 
+       RowBox[{"#", "-", 
+        RowBox[{
+         RowBox[{"D", "[", 
+          RowBox[{"#", ",", "x"}], "]"}], "*", "x"}]}], ",", 
+       RowBox[{"D", "[", 
+        RowBox[{"#", ",", "x"}], "]"}], ",", 
+       RowBox[{"#", "/.", 
+        RowBox[{"{", 
+         RowBox[{"x", "->", 
+          RowBox[{"x", "+", ".05"}]}], "}"}]}]}], "}"}], "&"}]}], " ", ")"}], 
+  "/.", " ", 
+  RowBox[{"{", 
+   RowBox[{"x", "->", " ", ".55"}], "}"}]}]}], "Input",
+ CellChangeTimes->{{3.8812755656618156`*^9, 3.8812757058654823`*^9}, {
+  3.8812757473323927`*^9, 3.881275815728656*^9}, {3.881275917413067*^9, 
+  3.881275935925931*^9}, {3.881276030491572*^9, 3.8812760309441967`*^9}, {
+  3.881276070879788*^9, 3.881276070977476*^9}, {3.881276250654771*^9, 
+  3.8812762508193073`*^9}, {3.8812763505513897`*^9, 3.881276384251062*^9}, {
+  3.8812764652744007`*^9, 3.8812764915491247`*^9}, {3.8812771200906067`*^9, 
+  3.881277151177796*^9}},
+ CellLabel->"In[3]:=",ExpressionUUID->"94c6bb18-2ca7-4dd9-a277-12de27411f7c"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"2", " ", 
+   SuperscriptBox["\[ExponentialE]", 
+    RowBox[{"-", "x"}]], " ", "x", " ", 
+   SuperscriptBox[
+    RowBox[{"Cos", "[", 
+     RowBox[{"5", " ", "x"}], "]"}], "2"]}], "-", 
+  RowBox[{
+   SuperscriptBox["\[ExponentialE]", 
+    RowBox[{"-", "x"}]], " ", 
+   SuperscriptBox["x", "2"], " ", 
+   SuperscriptBox[
+    RowBox[{"Cos", "[", 
+     RowBox[{"5", " ", "x"}], "]"}], "2"]}], "-", 
+  RowBox[{"10", " ", 
+   SuperscriptBox["\[ExponentialE]", 
+    RowBox[{"-", "x"}]], " ", 
+   SuperscriptBox["x", "2"], " ", 
+   RowBox[{"Cos", "[", 
+    RowBox[{"5", " ", "x"}], "]"}], " ", 
+   RowBox[{"Sin", "[", 
+    RowBox[{"5", " ", "x"}], "]"}]}]}]], "Print",
+ CellChangeTimes->{3.881277151502591*^9},
+ CellLabel->
+  "During evaluation of \
+In[3]:=",ExpressionUUID->"57a429ed-bec2-407a-9ba4-0b790d8fde00"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"Null", ",", "0.29732255902464644`", ",", 
+   RowBox[{"-", "0.21217188759100558`"}], ",", "1.018988893231304`", ",", 
+   "0.349104776219882`"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.8812756021352987`*^9, {3.881275639741939*^9, 3.881275647064865*^9}, {
+   3.881275686199037*^9, 3.881275706444656*^9}, {3.8812757897716103`*^9, 
+   3.881275816129389*^9}, 3.881275939703911*^9, 3.881276031226346*^9, 
+   3.8812760715085773`*^9, 3.881276251642276*^9, 3.881276385576325*^9, {
+   3.881276465914248*^9, 3.881276491837384*^9}, {3.8812771272615023`*^9, 
+   3.8812771515044394`*^9}},
+ CellLabel->"Out[3]=",ExpressionUUID->"c2d29431-a8c0-4736-8acb-5e6ff4747a31"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"0.349104776219882`", ",", 
+   RowBox[{"-", "0.20572131569793073`"}], ",", "1.0087747125778412`", ",", 
+   "0.3936375671671072`"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.8812756021352987`*^9, {3.881275639741939*^9, 3.881275647064865*^9}, {
+   3.881275686199037*^9, 3.881275706444656*^9}, {3.8812757897716103`*^9, 
+   3.881275816129389*^9}, 3.881275939703911*^9, 3.881276031226346*^9, 
+   3.8812760715085773`*^9, 3.881276251642276*^9, 3.881276385576325*^9, {
+   3.881276465914248*^9, 3.881276491837384*^9}, {3.8812771272615023`*^9, 
+   3.881277151504869*^9}},
+ CellLabel->"Out[4]=",ExpressionUUID->"53a79e35-debe-4bea-9417-302b1243c05d"]
+}, Open  ]]
+},
+WindowSize->{808, 805},
+WindowMargins->{{4, Automatic}, {Automatic, 4}},
+FrontEndVersion->"13.0 for Mac OS X ARM (64-bit) (February 4, 2022)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"f38b152d-ab30-4e53-a7d6-48ab52cf277a"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 2355, 69, 94, "Input",ExpressionUUID->"94c6bb18-2ca7-4dd9-a277-12de27411f7c"],
+Cell[2938, 93, 840, 26, 25, "Print",ExpressionUUID->"57a429ed-bec2-407a-9ba4-0b790d8fde00"],
+Cell[3781, 121, 694, 12, 34, "Output",ExpressionUUID->"c2d29431-a8c0-4736-8acb-5e6ff4747a31"],
+Cell[4478, 135, 679, 12, 34, "Output",ExpressionUUID->"53a79e35-debe-4bea-9417-302b1243c05d"]
+}, Open  ]]
+}
+]
+*)
+
