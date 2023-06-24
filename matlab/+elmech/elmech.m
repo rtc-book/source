@@ -323,8 +323,9 @@ classdef elmech < handle
                 fname = join(['elmech_params_',tss,'.mat']);
                 disp(['Saving properties for ',tss,' to file ',fname])
                 self.params_con(tss,0); % change to tss
-                disp(self.p)
                 p = self.p; % for the weird save command
+                p = rmfield(p,'tau'); % don't want to include tau
+                disp(p)
                 p_doc = self.p_doc; % for the weird save command
                 save(fname,'p','p_doc');
             end
