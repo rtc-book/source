@@ -21,6 +21,7 @@ classdef elmech < handle
         tf              % matlab tf model, numeric
         p_              % parameters, symbolic
         p               % parameters, numeric
+        p_doc           % parameters, described 
         dc_             % dc gain(s), symbolic
         dc              % dc gain(s), numeric
         tss_versions    % specific TS versions (for exporting .mat files)
@@ -68,15 +69,27 @@ classdef elmech < handle
         end
         function self = params_con(self,tss,variant)
             if strcmp(tss,'T1a')
+                % general, doc 
+                self.p_doc.motor = "Motor: Faulhaber 2642048 CR";
+                self.p_doc.amp = "Amplifier: Maxon ESCON Module 24/2";
+                self.p_doc.flywheel = "Flywheel: Jacobs 30243 1/4 in Drill Chuck";
                 % motor (Faulhaber 2642048 CR)
                 self.p.R = 23.8;            % Ohm
+                self.p_doc.R = "Motor Armature Resistance, Ohm";
                 self.p.L = 2200e-6;         % H
+                self.p_doc.L = "Motor Armature Inductance, H";
                 self.p.Jm = 11e-3/100^2;    % kg-m^2    
+                self.p_doc.Jm = "Motor Rotor Inertia, kg-m^2";
                 self.p.Km = 69.8e-3;        % N-m/A
+                self.p_doc.Km = "Motor (Torque) Constant, N-m/A";
                 self.p.tau_mech = 5.4e-3;   % s ... mechanical time constant
+                self.p_doc.tau_mech = "Motor Mechanical Time Constant, s";
                 self.p.Vsnom = 48;
+                self.p_doc.Vsnom = "Motor Nominal Voltage, V";
                 self.p.noload_speed = 6400*2*pi/60;
+                self.p_doc.noload_speed = "Motor No-Load Speed, rad/s";
                 self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
+                self.p_doc.bm = "Motor Bearing Damping Coefficient (Estimated), N-m/(rad/s)";
                 % mechanical
                 fly_density = 2700;         % kg/m^3 ... aluminum
                 fly_diameter = 0.030;       % m
@@ -84,12 +97,17 @@ classdef elmech < handle
                 fly_volume = pi/4*fly_diameter^2*fly_thick; % m^3
                 fly_mass = fly_density*fly_volume; % kg
                 self.p.Jf = 1/2*fly_mass*(fly_diameter/2)^2;     % kg-m^2
+                self.p_doc.Jf = "Flywheel/Load Moment of Inertia, kg-m^2";
                 self.p.bb = 0;              % no external bearing
+                self.p_doc.bb = "External Bearing Damping Coefficient (N/A), N-m/(rad/s)";
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
+                self.p_doc.J = "Total Inertia, kg-m^2";
                 self.p.B = self.p.bm + self.p.bb;
+                self.p_doc.J = "Total Damping Coefficient, N-m/(rad/s)";
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
+                self.p_doc.Ka = "Amplifier Analog Gain, A/V";
             elseif strcmp(tss,'T1aex41')
                 % motor (Faulhaber 2642048 CR)
                 self.p.R = 23.8;            % Ohm
@@ -307,7 +325,8 @@ classdef elmech < handle
                 self.params_con(tss,0); % change to tss
                 disp(self.p)
                 p = self.p; % for the weird save command
-                save(fname,'p');
+                p_doc = self.p_doc; % for the weird save command
+                save(fname,'p','p_doc');
             end
         end
     end

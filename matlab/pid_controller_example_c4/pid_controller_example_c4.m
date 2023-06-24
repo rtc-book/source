@@ -49,9 +49,9 @@ function pi_controller_example_c4(varargin)
     %% Derivative compensation
     theta_c = pi - angle(evalfr(GP,psi));
     disp(sprintf('theta_c = %0.3g deg',rad2deg(theta_c)));
-    zD = real(psi) - imag(psi)/tan(theta_c);
-    disp(sprintf('zD = %0.3g',zD));
-    CD_sans = zpk(zD,[],1);
+    ZD = real(psi) - imag(psi)/tan(theta_c);
+    disp(sprintf('ZD = %0.3g',ZD));
+    CD_sans = zpk(ZD,[],1);
     
     % Compute and save root locus data (and plot)
     figure;
@@ -59,7 +59,7 @@ function pi_controller_example_c4(varargin)
     grid on
     
     % Complete derivative compensation
-    K2 = 0.48;                  % from the root locus
+    K2 = 1/abs(evalfr(K1*CD_sans*GP*H,psi));                  % from the root locus
     GCPD = K1*K2*CD_sans;         % PD controller
     GCLPD1 = GCPD*GP/(1+GCPD*GP*H);   % closed-loop tf
     
@@ -67,8 +67,8 @@ function pi_controller_example_c4(varargin)
     yPD1 = step(GCLPD1,t);        % step response simulation
     
     %% Integral compensation
-    zI = -2;
-    CI_sans = tf([1,-zI],[1,0]);
+    ZI = -2;
+    CI_sans = tf([1,-ZI],[1,0]);
     
     % Compute and save root locus data (and plot)
     figure;
@@ -100,8 +100,15 @@ function pi_controller_example_c4(varargin)
     disp(sprintf('Ts = %0.2f sec',S.SettlingTime))
     disp(sprintf('OS = %0.2f percent',S.Overshoot))
     
+    %% Design parameters
+    disp(['K1 = ',num2str(K1)]);
+    disp(['K2 = ',num2str(K2)]);
+    disp(['K3 = ',num2str(K3)]);
+    disp(['ZI = ',num2str(ZI)]);
+    disp(['ZD = ',num2str(ZD)]);
+    
     %% PID gains
-    disp(['Kp = ',num2str(-K1*K2*K3*(zD+zI))]);
-    disp(['Ki = ',num2str(K1*K2*K3*(zD*zI))]);
+    disp(['Kp = ',num2str(-K1*K2*K3*(ZD+ZI))]);
+    disp(['Ki = ',num2str(K1*K2*K3*(ZD*ZI))]);
     disp(['Kd = ',num2str(K1*K2*K3)]);
 end

@@ -1,5 +1,5 @@
 sources = $(shell find . -type f -name '*.m')
-targets = $(shell find . -type f \( -name '*.dat' -o -name '*.tex' \))
+targets = $(shell find . -type f \( -name '*.dat' -o -name '*.mat' \))
 
 $(info $$sources is [${sources}])
 $(info $$targets is [${targets}])
@@ -8,5 +8,5 @@ $(info $$targets is [${targets}])
 
 all: $(targets)
 
-%.mat: $(sources)
+%.mat: $(sources) ../+elmech/elmech.m
 	cd $(dir $@) && matlab -nosplash -nodesktop -nodisplay -r 'make;exit'
