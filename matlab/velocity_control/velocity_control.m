@@ -8,7 +8,7 @@ function velocity_control(varargin)
     
     %% Parse arguments
     ts_default = 'T1';              % default elmech system
-    tss_default = 'T1ac';            % default elmech system
+    tss_default = 'T1a';            % default elmech system
     source_default = 'current';     % default elmech system
     variant_default = 0;           % default elmech system
     p = inputParser;
@@ -24,7 +24,7 @@ function velocity_control(varargin)
 
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
-    G = em.tf(1);                   % output angular velocity
+    GP = em.p.Ka*em.tf(1);                   % output angular velocity
     
     %% Design point
     Ts = 0.2;                       % sec ... design settling time
@@ -34,28 +34,29 @@ function velocity_control(varargin)
     %% Design proportional controller
     H = tf([1],[1]);                % feedback transfer function
     figure;
-    [r,k] = root_locus_data(G*H,'root-locus-P.txt');
+    [r,k] = root_locus_data(GP*H,'root-locus-P.txt');
     grid on
-    xlim([-30,0]);
-    K1 = 0.001;                     % from root locus
+    xlim([-40,0]);
+    K1 = 9.08e-3;                     % from root locus
 
     %% Design integral compensator
-    ZI = -1;                        % compensator zero
+    ZI = -20;                        % compensator zero
     s = tf([1,0],[1]);              % s as tf object
     CI_sans = (s - ZI)/s;           % compensator sans gain
     figure;
-    [r,k] = root_locus_data(CI_sans*K1*G*H,'root-locus-PI.txt');
-    xlim([-30,0]);
-    K2 = 1.07;                     % from root locus
-    N = K1*K2*CI_sans;
+    [r,k] = root_locus_data(CI_sans*K1*GP*H,'root-locus-PI.txt');
+    xlim([-40,0]);
+    K2 = 2.15;                     % from root locus
+    GC = K1*K2*CI_sans;
     
     %% Close loop and discretize system models
-    GCL = N*G/(1+N*G*H);            % closed-loop tf
+    GCL = GC*GP/(1+GC*GP*H);            % closed-loop tf
     T = 5e-3;                       % s ... sample period
-    NT = c2d(N,T,'Tustin');         % using Tustin's method
-    GT = c2d(G,T,'Tustin');
-    HT = c2d(H,T,'Tustin');
-    GCLT = NT*GT/(1+NT*GT*HT);      % discrete closed-loop tf
+    GCd = c2d(GC,T,'Tustin');         % using Tustin's method
+    GPd = c2d(GP,T,'Tustin');
+    Hd = c2d(H,T,'Tustin');
+%     GCLd = GCd*GPd/(1+GCd*GPd*Hd);      % discrete closed-loop tf
+    GCLd = feedback(GCd*GPd,Hd);      % discrete closed-loop tf
     
     %% Simulate step command output responses
     R_rpm = 1000;                   % RPM ... command angular velocity
@@ -63,21 +64,21 @@ function velocity_control(varargin)
     t = 0:T:0.4;
 %     yP = R_rads*step(GCLP,t);
     Omega = R_rads*step(GCL,t);
-    OmegaT = R_rads*step(GCLT,t);
+    Omegad = R_rads*step(GCLd,t);
     
     %% Control effort
-    U_R = NT/(1+NT*GT*HT);          % control effort cl tf, amp input voltage
+    U_R = GCd/(1+GCd*GPd*Hd);          % control effort cl tf, amp input voltage
     u = R_rads*step(U_R,t);         % amplifier input voltage
     u_c = u*em.p.Ka;                % amplifier output current
     u_v = em.p.R*u_c(1:end-1) + ... % amplifier output voltage
         em.p.L*diff(u_c) +  ...
-        em.p.Km*OmegaT(1:end-1);
+        em.p.Km*Omegad(1:end-1);
     
     %% Plot step responses
     figure;
     subplot(2,1,1)
     plot(t,Omega*60/(2*pi),'linewidth',1); hold on
-    plot(t,OmegaT*60/(2*pi),'o','linewidth',1); hold off
+    plot(t,Omegad*60/(2*pi),'o','linewidth',1); hold off
     xlabel('time (s)')
     ylabel('step command \Omega_J response (rpm)')
     subplot(2,1,2)
@@ -91,7 +92,7 @@ function velocity_control(varargin)
     ylabel('v_S (V)')
     
     %% Save step plot data
-    d = [t.',Omega*60/(2*pi),OmegaT*60/(2*pi)];
+    d = [t.',Omega*60/(2*pi),Omegad*60/(2*pi)];
     save('step-response-Omega.txt','d','-ascii');
     d = [t.',u_c*1e3];
     save('step-response-uc.txt','d','-ascii');
@@ -108,11 +109,11 @@ function velocity_control(varargin)
     
     %% Transient response characteristics
     
-    si = stepinfo(OmegaT,t);
+    si = stepinfo(Omegad,t);
     disp(sprintf('Settling time: %f s',si.SettlingTime));
     
 %     save(strcat(em.v,'_u','_make.dat'),'dat_u','-ascii');
 %     save(strcat(em.v,'_i','_make.dat'),'dat_i','-ascii');
 
-
+    
 end

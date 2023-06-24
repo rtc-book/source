@@ -8,7 +8,7 @@ function position_control(varargin)
     
     %% Parse arguments
     ts_default = 'T1';              % default elmech system
-    tss_default = 'T1ac';            % default elmech system
+    tss_default = 'T1a';            % default elmech system
     source_default = 'current';     % default elmech system
     variant_default = 0;           % default elmech system
     p = inputParser;
@@ -25,12 +25,12 @@ function position_control(varargin)
     %% Define system
     em = elmech(p.Results.ts,p.Results.tss,p.Results.source,p.Results.variant);
     s = tf([1,0],[1]);              % make s a tf object
-    G = em.tf/s;                    % plant tf, Theta/U_a
+    G = em.p.Ka*em.tf/s;                    % plant tf, Theta/U_a
     H = tf([1],[1]);                % unity feedback
     
     %% Design PIDF controller with pidtune
-    Tr = 0.02;                      % design closed-loop rise time (conservative)
-    wc=1/Tr;                        % control bandwidth (gain crossover frequency)
+    Tr = 0.04;                      % design closed-loop rise time (conservative)
+    wc=2/Tr;                        % control bandwidth (gain crossover frequency)
     options = pidtuneOptions('DesignFocus','reference-tracking');
     N = pidtune(G*H,'pidf',wc,options);
     GCL = N*G/(1+N*G*H);            % closed-loop tf Theta/U_a

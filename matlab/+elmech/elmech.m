@@ -21,8 +21,10 @@ classdef elmech < handle
         tf              % matlab tf model, numeric
         p_              % parameters, symbolic
         p               % parameters, numeric
+        p_doc           % parameters, described 
         dc_             % dc gain(s), symbolic
         dc              % dc gain(s), numeric
+        tss_versions    % specific TS versions (for exporting .mat files)
     end
     
     methods
@@ -53,18 +55,83 @@ classdef elmech < handle
             self.ss_con();
             self.tf_con();
             self.first_second_order_con();
+            % for exporting .mat files
+            self.tss_versions = {'T1a','T1ab','T1ac','T1ad','T1b','T2a'};
         end
         function self = params__con(self)
-            syms R L Km J b Ka positive
+            syms R L Km J B Ka positive
             self.p_.R = R;
             self.p_.L = L;
             self.p_.Km = Km;
             self.p_.J = J;
-            self.p_.b = b;
+            self.p_.B = B;
             self.p_.Ka = Ka;
         end
         function self = params_con(self,tss,variant)
             if strcmp(tss,'T1a')
+                % general, doc 
+                self.p_doc.motor = "Motor: Faulhaber 2642048 CR";
+                self.p_doc.amp = "Amplifier: Maxon ESCON Module 24/2";
+                self.p_doc.flywheel = "Flywheel: Jacobs 30243 1/4 in Drill Chuck";
+                % motor (Faulhaber 2642048 CR)
+                self.p.R = 23.8;            % Ohm
+                self.p_doc.R = "Motor Armature Resistance, Ohm";
+                self.p.L = 2200e-6;         % H
+                self.p_doc.L = "Motor Armature Inductance, H";
+                self.p.Jm = 11e-3/100^2;    % kg-m^2    
+                self.p_doc.Jm = "Motor Rotor Inertia, kg-m^2";
+                self.p.Km = 69.8e-3;        % N-m/A
+                self.p_doc.Km = "Motor (Torque) Constant, N-m/A";
+                self.p.tau_mech = 5.4e-3;   % s ... mechanical time constant
+                self.p_doc.tau_mech = "Motor Mechanical Time Constant, s";
+                self.p.Vsnom = 48;
+                self.p_doc.Vsnom = "Motor Nominal Voltage, V";
+                self.p.noload_speed = 6400*2*pi/60;
+                self.p_doc.noload_speed = "Motor No-Load Speed, rad/s";
+                self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
+                self.p_doc.bm = "Motor Bearing Damping Coefficient (Estimated), N-m/(rad/s)";
+                % mechanical
+                fly_density = 2700;         % kg/m^3 ... aluminum
+                fly_diameter = 0.030;       % m
+                fly_thick = 0.005;          % m 
+                fly_volume = pi/4*fly_diameter^2*fly_thick; % m^3
+                fly_mass = fly_density*fly_volume; % kg
+                self.p.Jf = 1/2*fly_mass*(fly_diameter/2)^2;     % kg-m^2
+                self.p_doc.Jf = "Flywheel/Load Moment of Inertia, kg-m^2";
+                self.p.bb = 0;              % no external bearing
+                self.p_doc.bb = "External Bearing Damping Coefficient (N/A), N-m/(rad/s)";
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p_doc.J = "Total Inertia, kg-m^2";
+                self.p.B = self.p.bm + self.p.bb;
+                self.p_doc.J = "Total Damping Coefficient, N-m/(rad/s)";
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.06;        % A/V
+                self.p_doc.Ka = "Amplifier Analog Gain, A/V";
+            elseif strcmp(tss,'T1aex41')
+                % motor (Faulhaber 2642048 CR)
+                self.p.R = 23.8;            % Ohm
+                self.p.L = 10*2200e-6;         % H
+                self.p.Jm = 11e-3/100^2;    % kg-m^2    
+                self.p.Km = 69.8e-3;        % N-m/A
+                self.p.tau_mech = 5.4e-3;   % s ... mechanical time constant
+                self.p.Vsnom = 48;
+                self.p.noload_speed = 6400*2*pi/60;
+                self.p.bm = 4*(self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
+                % mechanical
+                fly_density = 2700;         % kg/m^3 ... aluminum
+                fly_diameter = 0.030;       % m
+                fly_thick = 0.005;          % m 
+                fly_volume = pi/4*fly_diameter^2*fly_thick; % m^3
+                fly_mass = fly_density*fly_volume; % kg
+                self.p.Jf = 1/2*fly_mass*(fly_diameter/2)^2;     % kg-m^2
+                self.p.bb = 0;              % no external bearing
+                % combined parameters
+                self.p.J = self.p.Jm + self.p.Jf;
+                self.p.B = self.p.bm + self.p.bb;
+                % amplifier (Maxon ESCON Module 24/2)
+                self.p.Ka = 0.06;        % A/V
+            elseif strcmp(tss,'T1ab')
                 % motor (Faulhaber 2342024 CR)
                 self.p.R = 7.1;         % Ohm
                 self.p.L = 265e-6;      % H
@@ -79,10 +146,10 @@ classdef elmech < handle
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
-            elseif strcmp(tss,'T1ab')
+                self.p.Ka = 0.06;        % A/V
+            elseif strcmp(tss,'T1ac')
                 % motor (Faulhaber 2342036 CR)
                 self.p.R = 15.9;         % Ohm
                 self.p.L = 590e-6;      % H
@@ -97,10 +164,10 @@ classdef elmech < handle
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
-            elseif strcmp(tss,'T1ac')
+                self.p.Ka = 0.06;        % A/V
+            elseif strcmp(tss,'T1ad')
                 % motor (Faulhaber 2342048 CR)
                 self.p.R = 31.2;         % Ohm
                 self.p.L = 1050e-6;      % H
@@ -115,9 +182,9 @@ classdef elmech < handle
                 self.p.bb = 0;          % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
-                self.p.Ka = 0.6;        % A/V
+                self.p.Ka = 0.06;        % A/V
             elseif strcmp(tss,'T1b')
                 % motor
                 self.p.R = 1.6;
@@ -130,7 +197,7 @@ classdef elmech < handle
                 self.p.bb = self.p.bm;
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Copley 412)
                 self.p.Ka = 0.41;       % A/V
             elseif strcmp(tss,'T2a')
@@ -149,7 +216,7 @@ classdef elmech < handle
                 self.p.bb = 0;                      % no external bearing
                 % combined parameters
                 self.p.J = self.p.Jm + self.p.Jf;
-                self.p.b = self.p.bm + self.p.bb;
+                self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Pololu 18v17, PWM)
                 self.p.Ka = 1;       % V/V
             else
@@ -162,26 +229,34 @@ classdef elmech < handle
                     self.states = {'\Omega_J','i_L'};
                     self.inputs = {'V_S'};
                     self.A_ = [
-                        -self.p_.b/self.p_.J,   self.p_.Km/self.p_.J;
+                        -self.p_.B/self.p_.J,   self.p_.Km/self.p_.J;
                         -self.p_.Km/self.p_.L,  -self.p_.R/self.p_.L;
                     ];
                     self.B_ = [
-                        0; self.p_.Ka/self.p_.L
+                        0; 1/self.p_.L
                     ];
                     if variant == 0
                         self.outputs = {'\Omega_J'};
                         self.C_ = [1, 0];
                         self.D_ = [0];
-                    elseif variant == 'OJ+iL'
+                    elseif strcmp(variant,'OJ+iL')
                         self.outputs = {'\Omega_J','i_L'};
                         self.C_ = [1, 0;0, 1];
                         self.D_ = [0; 0];
+                    elseif strcmp(variant,'OJ+iL+TJ')
+                        self.outputs = {'\Omega_J','i_L','T_J'};
+                        self.C_ = [1, 0;0, 1;-self.p_.B, self.p_.Km];
+                        self.D_ = [0; 0; 0];
+                    elseif strcmp(variant,'OJ+iL+vL')
+                        self.outputs = {'\Omega_J','i_L','v_L'};
+                        self.C_ = [1, 0;0, 1;-self.p_.Km,-self.p_.R];
+                        self.D_ = [0; 0; 1];
                     end
                 elseif strcmp(source,'current')
                     self.states = {'\Omega_J'};
                     self.inputs = {'I_S'};
-                    self.A_ = [-self.p_.b/self.p_.J];
-                    self.B_ = [self.p_.Ka*self.p_.Km/self.p_.J];
+                    self.A_ = [-self.p_.B/self.p_.J];
+                    self.B_ = [self.p_.Km/self.p_.J];
                     if variant == 0
                         self.outputs = {'\Omega_J'};
                         self.C_ = [1];
@@ -189,7 +264,7 @@ classdef elmech < handle
                     elseif strcmp(variant,'OJ+iL')
                         self.outputs = {'\Omega_J','i_L'};
                         self.C_ = [1;0];
-                        self.D_ = [0;self.p_.Ka];
+                        self.D_ = [0;1];
                     end
                 end
             end
@@ -241,6 +316,19 @@ classdef elmech < handle
             % 
             %   returns a double
             obj = double(subs(objin,self.p));
+        end
+        function self = export_parameters(self)
+            for i = 1:length(self.tss_versions)
+                tss = self.tss_versions{i};
+                fname = join(['elmech_params_',tss,'.mat']);
+                disp(['Saving properties for ',tss,' to file ',fname])
+                self.params_con(tss,0); % change to tss
+                p = self.p; % for the weird save command
+                p = rmfield(p,'tau'); % don't want to include tau
+                disp(p)
+                p_doc = self.p_doc; % for the weird save command
+                save(fname,'p','p_doc');
+            end
         end
     end
 end
