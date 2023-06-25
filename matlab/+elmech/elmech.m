@@ -101,7 +101,8 @@ classdef elmech < handle
                 self.p.bb = 0;              % no external bearing
                 self.p_doc.bb = "External Bearing Damping Coefficient (N/A), N-m/(rad/s)";
                 % combined parameters
-                self.p.J = self.p.Jm + self.p.Jf;
+                %  self.p.J = self.p.Jm + self.p.Jf; % using estimated instead
+                self.p.J = 1.3274e-5; % kg-m^2, Cameron's esitimate 06/2023
                 self.p_doc.J = "Total Inertia, kg-m^2";
                 self.p.B = self.p.bm + self.p.bb;
                 self.p_doc.J = "Total Damping Coefficient, N-m/(rad/s)";
