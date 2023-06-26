@@ -37,7 +37,7 @@ function velocity_control(varargin)
     [r,k] = root_locus_data(GP*H,'root-locus-P.txt');
     grid on
     xlim([-40,0]);
-    K1 = 9.08e-3;                     % from root locus
+    K1 = 0.062;                     % from root locus
 
     %% Design integral compensator
     ZI = -20;                        % compensator zero
@@ -46,7 +46,7 @@ function velocity_control(varargin)
     figure;
     [r,k] = root_locus_data(CI_sans*K1*GP*H,'root-locus-PI.txt');
     xlim([-40,0]);
-    K2 = 2.15;                     % from root locus
+    K2 = 2.03;                     % from root locus
     GC = K1*K2*CI_sans;
     
     %% Close loop and discretize system models
@@ -59,9 +59,9 @@ function velocity_control(varargin)
     GCLd = feedback(GCd*GPd,Hd);      % discrete closed-loop tf
     
     %% Simulate step command output responses
-    R_rpm = 1000;                   % RPM ... command angular velocity
+    R_rpm = 500;                   % RPM ... command angular velocity
     R_rads = R_rpm*2*pi/60;         % rad/s
-    t = 0:T:0.4;
+    t = 0:T:0.3;
 %     yP = R_rads*step(GCLP,t);
     Omega = R_rads*step(GCL,t);
     Omegad = R_rads*step(GCLd,t);
@@ -70,9 +70,10 @@ function velocity_control(varargin)
     U_R = GCd/(1+GCd*GPd*Hd);          % control effort cl tf, amp input voltage
     u = R_rads*step(U_R,t);         % amplifier input voltage
     u_c = u*em.p.Ka;                % amplifier output current
-    u_v = em.p.R*u_c(1:end-1) + ... % amplifier output voltage
-        em.p.L*diff(u_c) +  ...
-        em.p.Km*Omegad(1:end-1);
+    u_R = em.p.R*u_c(1:end-1);      % armature resistance voltage
+    u_L = em.p.L*diff(u_c);         % armature inductance voltage
+    u_M = em.p.Km*Omegad(1:end-1);  % back EMF voltage
+    u_v = u_R + u_L + u_M;          % amplifier output voltage
     
     %% Plot step responses
     figure;
@@ -96,9 +97,40 @@ function velocity_control(varargin)
     save('step-response-Omega.txt','d','-ascii');
     d = [t.',u_c*1e3];
     save('step-response-uc.txt','d','-ascii');
-    u_v(end+1) = u_v(end); % for plot
-    d = [t.',u_v];
+    u_v_save = u_v;
+    u_v_save(end+1) = u_v_save(end); % for plot
+    d = [t.',u_v_save];
     save('step-response-uv.txt','d','-ascii');
+    
+    %% More detailed control effort step responses
+    figure;
+    subplot(2,1,1)
+    plot(t,Omega*60/(2*pi),'linewidth',1); hold on
+    plot(t,Omegad*60/(2*pi),'o','linewidth',1); hold off
+    xlabel('time (s)')
+    ylabel('step command \Omega_J response (rpm)')
+    subplot(2,1,2)
+    yyaxis left
+%     plot(t,u,'linewidth',1); hold on
+    stairs(t,u_c*1e3,'linewidth',1); hold off
+    ylabel('control effort I_S (mA)')
+    yyaxis right
+    stairs(t(1:end-1),u_R,'.','linewidth',1);hold on
+    stairs(t(1:end-1),u_L,'.-','linewidth',1);
+    stairs(t(1:end-1),u_M,'--','linewidth',1);
+    stairs(t(1:end-1),u_v,'-','linewidth',1);hold off
+    xlabel('time (s)')
+    ylabel('v_S (V)')
+    
+    %% Save step plot data
+    d = [t.',Omega*60/(2*pi),Omegad*60/(2*pi)];
+    save('step-response-Omega-detailed.txt','d','-ascii');
+    d = [t.',u_c*1e3];
+    save('step-response-uc-detailed.txt','d','-ascii');
+    u_v_save = u_v;
+    u_v_save(end+1) = u_v_save(end); % for plot
+    d = [t.',u_v_save];
+    save('step-response-uv-detailed.txt','d','-ascii');
     
     %% PI gains
     

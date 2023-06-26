@@ -43,7 +43,7 @@ function position_control(varargin)
     GCLT = NT*GT/(1+NT*GT*HT);      % discrete closed-loop tf
     
     %% Simulate step command output responses
-    R_deg = 90;                     % deg ... command angular position
+    R_deg = 25;                     % deg ... command angular position
     R_rad = R_deg*pi/180;           % rad
     t = 0:T:0.2;
     Theta = R_rad*step(GCL,t);

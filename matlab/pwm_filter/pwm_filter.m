@@ -1,5 +1,6 @@
 clear; close all;
 addpath('..')               % to load sibling packages
+addpath('../matlab2tikz/src/') 
 import elmech.*             % electromechanical system definition
 import utils.*              % utilities like pwm function
 import plotting.colors.*    % RTCBook colors
@@ -30,7 +31,7 @@ matlab2tikz('pwm_filter_bode.tex', ...
 %%% ΩJ PWM input
 
 pwmp.amp = 2;                   % V ... PWM amplitude
-pwmp.w = wn*[1/2,1,2,4];              % rad/s ... PWM frequency
+pwmp.w = wn*[.1,.5,1.0,1.5];              % rad/s ... PWM frequency
 pwmp.duty = 0.5;                % duty cycle
 
 kappa = pwmp.amp*pwmp.duty;     % mean pulse-wave
@@ -39,7 +40,7 @@ wjs = kappa*dcg(1);             % steady state mean ΩJs
 dsb = 1e5;                      % dividing down factor for plots
 
 wlen = length(pwmp.w);
-t_a = linspace(0,2*pi/wn*10,1e6);
+t_a = linspace(0,2*pi/wn*20,1e6);
 u_a = zeros(wlen,length(t_a));
 for j = 1:wlen
    u_a(j,:) = utils.pwm(t_a,pwmp.amp,pwmp.w(j),pwmp.duty); 
