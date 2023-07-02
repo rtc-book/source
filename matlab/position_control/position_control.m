@@ -54,8 +54,8 @@ function position_control(varargin)
     u = R_rad*step(U_R,t);          % amplifier input voltage
     u_c = u*em.p.Ka;                % amplifier output current
     u_v = em.p.R*u_c(1:end-1) + ... % amplifier output voltage
-        em.p.L*diff(u_c) + ...
-        em.p.Km*diff(ThetaT);
+        em.p.L*diff(u_c)/T + ...
+        em.p.Km*diff(ThetaT)/T;
     
     %% Plot step responses
     figure;

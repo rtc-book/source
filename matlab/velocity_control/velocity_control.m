@@ -46,7 +46,7 @@ function velocity_control(varargin)
     figure;
     [r,k] = root_locus_data(CI_sans*K1*GP*H,'root-locus-PI.txt');
     xlim([-40,0]);
-    K2 = 2.03;                     % from root locus
+    K2 = 1.67;                     % from root locus
     GC = K1*K2*CI_sans;
     
     %% Close loop and discretize system models
@@ -71,7 +71,7 @@ function velocity_control(varargin)
     u = R_rads*step(U_R,t);         % amplifier input voltage
     u_c = u*em.p.Ka;                % amplifier output current
     u_R = em.p.R*u_c(1:end-1);      % armature resistance voltage
-    u_L = em.p.L*diff(u_c);         % armature inductance voltage
+    u_L = em.p.L*diff(u_c)/T;       % armature inductance voltage
     u_M = em.p.Km*Omegad(1:end-1);  % back EMF voltage
     u_v = u_R + u_L + u_M;          % amplifier output voltage
     
@@ -143,6 +143,7 @@ function velocity_control(varargin)
     
     si = stepinfo(Omegad,t);
     disp(sprintf('Settling time: %f s',si.SettlingTime));
+    disp(sprintf('Overshoot: %f percent',si.Overshoot));
     
 %     save(strcat(em.v,'_u','_make.dat'),'dat_u','-ascii');
 %     save(strcat(em.v,'_i','_make.dat'),'dat_i','-ascii');

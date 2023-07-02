@@ -87,7 +87,7 @@ classdef elmech < handle
                 self.p.Vsnom = 48;
                 self.p_doc.Vsnom = "Motor Nominal Voltage, V";
                 self.p.noload_speed = 6400*2*pi/60;
-                self.p_doc.noload_speed = "Motor No-Load Speed, rad/s";
+                self.p_doc.noload_speed = "Motor Steady-State No-Load Speed, rad/s";
                 self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
                 self.p_doc.bm = "Motor Bearing Damping Coefficient (Estimated), N-m/(rad/s)";
                 % mechanical
@@ -105,10 +105,10 @@ classdef elmech < handle
                 self.p.J = 1.1e-5; % kg-m^2, Cameron's esitimate 06/2023
                 self.p_doc.J = "Total Inertia, kg-m^2";
                 self.p.B = self.p.bm + self.p.bb;
-                self.p_doc.J = "Total Damping Coefficient, N-m/(rad/s)";
+                self.p_doc.B = "Total Damping Coefficient, N-m/(rad/s)";
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
-                self.p_doc.Ka = "Amplifier Analog Gain, A/V";
+                self.p_doc.Ka = "Current Amplifier Analog Gain, A/V";
             elseif strcmp(tss,'T1aex41')
                 % motor (Faulhaber 2642048 CR)
                 self.p.R = 23.8;            % Ohm
@@ -325,9 +325,14 @@ classdef elmech < handle
                 disp(['Saving properties for ',tss,' to file ',fname])
                 self.params_con(tss,0); % change to tss
                 p = self.p; % for the weird save command
-                p = rmfield(p,'tau'); % don't want to include tau
-                disp(p)
                 p_doc = self.p_doc; % for the weird save command
+                p = rmfield(p,'tau'); % don't want to include tau
+                p = rmfield(p,'tau_mech'); % don't want to include tau_mech
+                if strcmp(self.tss,'T1a')
+                    p = rmfield(p,'bb'); % don't want to include tau
+                    p_doc = rmfield(p_doc,'bb'); % don't want to include tau
+                end
+                disp(p)
                 save(fname,'p','p_doc');
             end
         end
