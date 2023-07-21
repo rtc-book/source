@@ -67,51 +67,25 @@ classdef elmech < handle
             self.p_.B = B;
             self.p_.Ka = Ka;
         end
+        function self = load_json_parameters(self,filename)
+            fid = fopen(filename);
+            raw = fread(fid);
+            s = char(raw');
+            fclose(fid);
+            parameters = jsondecode(s);
+            self.p = parameters.p;
+            self.p_doc = parameters.p_doc;
+        end
         function self = params_con(self,tss,variant)
             if strcmp(tss,'T1a')
                 filename = '../elmech_params/T1a-parameters.json';
-                fid = fopen(filename);
-                raw = fread(fid);
-                s = char(raw');
-                fclose(fid);
-                parameters = jsondecode(s);
-                self.p = parameters.p;
-                self.p_doc = parameters.p_doc;
-%                 % general, doc 
-%                 self.p_doc.motor = "Motor: Faulhaber 2642048 CR";
-%                 self.p_doc.amp = "Amplifier: Maxon ESCON Module 24/2";
-%                 self.p_doc.flywheel = "Flywheel: Jacobs 30243 1/4 in Drill Chuck";
-%                 % motor (Faulhaber 2642048 CR)
-%                 self.p.R = 23.8;            % Ohm
-%                 self.p_doc.R = "Motor Armature Resistance, Ohm";
-%                 self.p.L = 2200e-6;         % H
-%                 self.p_doc.L = "Motor Armature Inductance, H";
-%                 self.p.Jm = 11e-3/100^2;    % kg-m^2    
-%                 self.p_doc.Jm = "Motor Rotor Inertia, kg-m^2";
-%                 self.p.Km = 69.8e-3;        % N-m/A
-%                 self.p_doc.Km = "Motor (Torque) Constant, N-m/A";
-%                 self.p.tau_mech = 5.4e-3;   % s ... mechanical time constant
-%                 self.p_doc.tau_mech = "Motor Mechanical Time Constant, s";
-%                 self.p.Vsnom = 48;
-%                 self.p_doc.Vsnom = "Motor Nominal Voltage, V";
-%                 self.p.noload_speed = 6400*2*pi/60;
-%                 self.p_doc.noload_speed = "Motor Steady-State No-Load Speed, rad/s";
-%                 self.p.bm = (self.p.Vsnom*self.p.Km/self.p.noload_speed - self.p.Km^2)/self.p.R;
-%                 self.p_doc.bm = "Motor Bearing Damping Coefficient (Estimated), N-m/(rad/s)";
-%                 % mechanical
-%                 self.p.Jf = 9.9e-6;     % kg-m^2 ... Camerons esitimate 06/2023
-%                 self.p_doc.Jf = "Flywheel/Load Moment of Inertia, kg-m^2";
-%                 self.p.bb = 0;              % no external bearing
-%                 self.p_doc.bb = "External Bearing Damping Coefficient (N/A), N-m/(rad/s)";
-%                 % combined parameters
-%                 self.p.J = self.p.Jm + self.p.Jf; % using estimated instead
-% %                 self.p.J = 1.1e-5; % kg-m^2, 
-%                 self.p_doc.J = "Total Inertia, kg-m^2";
-%                 self.p.B = self.p.bm + self.p.bb;
-%                 self.p_doc.B = "Total Damping Coefficient, N-m/(rad/s)";
-%                 % amplifier (Maxon ESCON Module 24/2)
-%                 self.p.Ka = 0.06;        % A/V
-%                 self.p_doc.Ka = "Current Amplifier Analog Gain, A/V";
+                self.load_json_parameters(filename);
+            elseif strcmp(tss,'T1b')
+                filename = '../elmech_params/T1b-parameters.json';
+                self.load_json_parameters(filename);
+            elseif strcmp(tss,'T2a')
+                filename = '../elmech_params/T2a-parameters.json';
+                self.load_json_parameters(filename);
             elseif strcmp(tss,'T1aex41')
                 % motor (Faulhaber 2642048 CR)
                 self.p.R = 23.8;            % Ohm
@@ -189,40 +163,6 @@ classdef elmech < handle
                 self.p.B = self.p.bm + self.p.bb;
                 % amplifier (Maxon ESCON Module 24/2)
                 self.p.Ka = 0.06;        % A/V
-            elseif strcmp(tss,'T1b')
-                % motor
-                self.p.R = 1.6;
-                self.p.L = 4.1e-3;
-                self.p.Jm = 56.5e-6;
-                self.p.bm = 16.9e-6;
-                self.p.Km = 0.097;
-                % mechanical
-                self.p.Jf = 0.324e-3;
-                self.p.bb = self.p.bm;
-                % combined parameters
-                self.p.J = self.p.Jm + self.p.Jf;
-                self.p.B = self.p.bm + self.p.bb;
-                % amplifier (Copley 412)
-                self.p.Ka = 0.41;       % A/V
-            elseif strcmp(tss,'T2a')
-                % motor
-                self.p.R = 1.09;                    % phidgets_motor_estimation.m (deduced from spec sheet)
-                self.p.L = 0.0038106;               % estimated in phidgets_motor_estimation.m from step response measurement
-                self.p.Jm = 6.4272e-05;             % estimated in phidgets_motor_estimation.m from step response measurement
-                self.p.bm = 3.992e-05;              % estimated in phidgets_motor_estimation.m from step response measurement
-                self.p.Km = 0.063694;               % estimated in phidgets_motor_estimation.m from step response measurement
-                % mechanical
-                density_Al = 2.71e3;                % kg/m^3 ... density of Al
-                diameter_Jf = 2.5*2.54e-2;          % m ... flywheel diameter
-                length_Jf = 1.0*2.54e-2;            % m ... flywheel length
-                mass_Jf = density_Al*pi*(diameter_Jf/2)^2*length_Jf; % kg
-                self.p.Jf = 1/2*mass_Jf*(diameter_Jf/2)^2; % kg-m^2 ... flywheel inertia
-                self.p.bb = 0;                      % no external bearing
-                % combined parameters
-                self.p.J = self.p.Jm + self.p.Jf;
-                self.p.B = self.p.bm + self.p.bb;
-                % amplifier (Pololu 18v17, PWM)
-                self.p.Ka = 1;       % V/V
             else
                 error(['Specific target system tss ',tss,' undefined']);
             end
